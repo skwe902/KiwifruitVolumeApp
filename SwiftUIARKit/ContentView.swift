@@ -5,7 +5,7 @@
 
 import SwiftUI
 
-struct ContentView: View { // this is the ContentView ui for the app
+struct ContentView: View { // this is the ContentView ui for the app (the actual measurement page)
     @ObservedObject var arDelegate = ARDelegate()
     
     var body: some View {

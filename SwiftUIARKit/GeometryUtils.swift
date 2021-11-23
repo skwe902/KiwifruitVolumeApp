@@ -22,7 +22,7 @@ class GeometryUtils {
         return calculateDistance(first: firstNode.position, second: secondNode.position)
     }
     
-    static func createCircle(fromRaycastResult result:ARRaycastResult) -> SCNNode {
+    static func createCircle(fromRaycastResult result:ARRaycastResult) -> SCNNode { //draw a circle
         let circleGeometry = SCNSphere(radius: 0.010)
         
         let material = SCNMaterial()
