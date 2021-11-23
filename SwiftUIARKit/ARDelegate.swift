@@ -63,11 +63,11 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         print("camera did change \(camera.trackingState)")
         switch camera.trackingState {
         case .limited(_):
-            message = "tracking limited"
+            message = "Device Starting" //tracking limited
         case .normal:
-            message =  "tracking ready"
+            message =  "Ready to Measure" //tracking ready
         case .notAvailable:
-            message = "cannot track"
+            message = "Cannot Measure" //cannot track
         }
     }
     
@@ -136,6 +136,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         else if circles.count == 1 && count == 2{
             message = "add second Y point"
         }
+        //TODO: check if the AR can measure depth and use that to create a more accurate measurement
     }
     
     private func raycastResult(fromLocation location: CGPoint) -> ARRaycastResult? {
