@@ -79,6 +79,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     var count: Int = 1
     private var xDistance: Float = 0
     private var yDistance: Float = 0
+    private var zDistance: Float = 0
     private var volume: Float = 0
     
     private func addCircle(raycastResult: ARRaycastResult) {
@@ -127,8 +128,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 volume = 4/3 * Float.pi * yDistance * yDistance * xDistance
                 print("Volume = \(volume)")
             }
-            message = "Y length " + String(format: "%.2f cm", distance) + " / Volume: " + String(format: "%.2f cm3", volume)
-            count = 1
+            message = "Y length " + String(format: "%.2f cm", distance) + " / Add reference point"
+            count = 3
         }
         else if circles.count == 1 && count == 1 {
             message = "add second X point"
@@ -137,6 +138,18 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             message = "add second Y point"
         }
         //TODO: check if the AR can measure depth and use that to create a more accurate measurement
+        else if circles.count == 1 && count == 3{
+            message = "add center point"
+        }
+        else if circles.count == 2 && count == 3{
+            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
+            print("Depth = \(distance)")
+            zDistance = distance
+            volume = 4/3 * Float.pi * xDistance * yDistance * zDistance
+            message = "Volume " + String(format: "%.2f cm", volume)
+            print("Volume w. depth = \(volume)")
+            count = 1
+        }
     }
     
     private func raycastResult(fromLocation location: CGPoint) -> ARRaycastResult? {

@@ -22,6 +22,16 @@ class GeometryUtils {
         return calculateDistance(first: firstNode.position, second: secondNode.position)
     }
     
+    static func calculateDepth(first: SCNVector3, second: SCNVector3) -> Float {
+        var depth:Float = second.z - first.z
+        depth *= 100
+        return abs(depth)
+    }
+    
+    static func calculateDepth(firstNode: SCNNode, secondNode:SCNNode) -> Float { //function overloading
+        return calculateDepth(first: firstNode.position, second: secondNode.position)
+    }
+    
     static func createCircle(fromRaycastResult result:ARRaycastResult) -> SCNNode { //draw a circle
         let circleGeometry = SCNSphere(radius: 0.010)
         
