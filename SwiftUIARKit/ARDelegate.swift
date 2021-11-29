@@ -8,6 +8,7 @@
 import Foundation
 import ARKit
 import UIKit
+import Vision
 
 class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     @Published var message:String = "starting AR"
@@ -23,31 +24,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         arView.scene = SCNScene()
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
         arView.addGestureRecognizer(tapGesture)
-        
-//        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panOnARView))
-//        arView.addGestureRecognizer(panGesture)
     }
     
-//    @objc func panOnARView(sender: UIPanGestureRecognizer) {
-//        //for swipe
-//        guard let arView = arView else { return }
-//        let location = sender.location(in: arView)
-//        switch sender.state {
-//        case .began:
-//            if let node = nodeAtLocation(location) {
-//                trackedNode = node
-//            }
-//        case .changed:
-//            if let node = trackedNode {
-//                if let result = raycastResult(fromLocation: location) {
-//                    moveNode(node, raycastResult:result)
-//                }
-//            }
-//        default:
-//            ()
-//        }
-//
-//    }
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         guard let arView = arView else { return }
@@ -75,106 +53,49 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
     }
     
-    // MARK: - ARSessionDelegate
-    
-    // Pass camera frames received from ARKit to Vision (when not already processing one)
-    /// - Tag: ConsumeARFrames
-    func session(_ session: ARSession, didUpdate frame: ARFrame) {
-        // Do not enqueue other buffers for processing while another Vision task is still running.
-        // The camera stream has only a finite amount of buffers available; holding too many buffers for analysis would starve the camera.
-        guard currentBuffer == nil, case .normal = frame.camera.trackingState else {
-            return
-        }
-        
-        // Retain the image buffer for Vision processing.
-        self.currentBuffer = frame.capturedImage
-        classifyCurrentImage()
-    }
-    
-    // MARK: - Vision classification
-    
-    // Vision classification request and model
-    /// - Tag: ClassificationRequest
-    private lazy var classificationRequest: VNCoreMLRequest = {
+    lazy var objectDetectionRequest: VNCoreMLRequest = {
         do {
-            // Instantiate the model from its generated Swift class.
-            let model = try VNCoreMLModel(for: kiwi1000_2.model)
-            let request = VNCoreMLRequest(model: model, completionHandler: { [weak self] request, error in
-                self?.processClassifications(for: request, error: error)
-            })
-            
-            // Crop input images to square area at center, matching the way the ML model was trained.
-            //request.imageCropAndScaleOption = .centerCrop
-            
-            // Use CPU for Vision processing to ensure that there are adequate GPU resources for rendering.
-            request.usesCPUOnly = true
-            
+            let model = try VNCoreMLModel(for: kiwi1000_2(configuration: MLModelConfiguration()).model)
+            let request = VNCoreMLRequest(model: model) { [weak self] request, error in
+                self?.processDetections(for: request, error: error)
+            }
             return request
         } catch {
-            fatalError("Failed to load Vision ML model: \(error)")
+            fatalError("Failed to load Vision ML model.")
         }
     }()
     
-    // The pixel buffer being held for analysis; used to serialize Vision requests.
-    private var currentBuffer: CVPixelBuffer?
-    
-    // Queue for dispatching vision classification requests
-    private let visionQueue = DispatchQueue(label: "com.example.apple-samplecode.ARKitVision.serialVisionQueue")
-    
-    // Run the Vision+ML classifier on the current image buffer.
-    /// - Tag: ClassifyCurrentImage
-    private func classifyCurrentImage() {
-        // Most computer vision tasks are not rotation agnostic so it is important to pass in the orientation of the image with respect to device.
-        let orientation = CGImagePropertyOrientation(UIDevice.current.orientation)
-        
-        let requestHandler = VNImageRequestHandler(cvPixelBuffer: currentBuffer!, orientation: orientation)
-        visionQueue.async {
-            do {
-                // Release the pixel buffer when done, allowing the next buffer to be processed.
-                defer { self.currentBuffer = nil }
-                try requestHandler.perform([self.classificationRequest])
-            } catch {
-                print("Error: Vision request failed with error \"\(error)\"")
-            }
-        }
-    }
-    
-    // Classification results
-    private var identifierString = ""
-    private var confidence: VNConfidence = 0.0
-    
-    // Handle completion of the Vision request and choose results to display.
-    /// - Tag: ProcessClassifications
-    func processClassifications(for request: VNRequest, error: Error?) {
-        guard let results = request.results else {
-            print("Unable to classify image.\n\(error!.localizedDescription)")
+    func processDetections(for request: VNRequest, error: Error?) {
+        guard error == nil else {
+            print("Object detection error: \(error!.localizedDescription)")
             return
         }
-        // The `results` will always be `VNClassificationObservation`s, as specified by the Core ML model in this project.
-        let classifications = results as! [VNClassificationObservation]
         
-        // Show a label for the highest-confidence result (but only above a minimum confidence threshold).
-        if let bestResult = classifications.first(where: { result in result.confidence > 0.5 }),
-            let label = bestResult.identifier.split(separator: ",").first {
-            identifierString = String(label)
-            confidence = bestResult.confidence
-        } else {
-            identifierString = ""
-            confidence = 0
-        }
+        guard let results = request.results else { return }
         
-        DispatchQueue.main.async { [weak self] in
-            self?.displayClassifierResults()
+        for observation in results where observation is VNRecognizedObjectObservation {
+            guard let objectObservation = observation as? VNRecognizedObjectObservation,
+                let topLabelObservation = objectObservation.labels.first,
+                topLabelObservation.identifier == "remote",
+                topLabelObservation.confidence > 0.9
+                else { continue }
+            
+            guard let currentFrame = arView.session.currentFrame else { continue }
+        
+            // Get the affine transform to convert between normalized image coordinates and view coordinates
+            let fromCameraImageToViewTransform = currentFrame.displayTransform(for: .portrait, viewportSize: viewportSize)
+            // The observation's bounding box in normalized image coordinates
+            let boundingBox = objectObservation.boundingBox
+            // Transform the latter into normalized view coordinates
+            let viewNormalizedBoundingBox = boundingBox.applying(fromCameraImageToViewTransform)
+            // The affine transform for view coordinates
+            let t = CGAffineTransform(scaleX: viewportSize.width, y: viewportSize.height)
+            // Scale up to view coordinates
+            let viewBoundingBox = viewNormalizedBoundingBox.applying(t)
+
+            let midPoint = CGPoint(x: viewBoundingBox.midX,
+                       y: viewBoundingBox.midY)
         }
-    }
-    
-    // Show the classification results in the UI.
-    private func displayClassifierResults() {
-        guard !self.identifierString.isEmpty else {
-            return // No object was classified.
-        }
-        let message = String(format: "Detected \(self.identifierString) with %.2f", self.confidence * 100) + "% confidence"
-        statusViewController.showMessage(message)
     }
     
     // MARK: - Private
