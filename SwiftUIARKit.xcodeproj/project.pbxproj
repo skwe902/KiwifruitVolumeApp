@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0311FEB527558F5C0094365B /* kiwi1000_2.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 0311FEB427558F5B0094365B /* kiwi1000_2.mlmodel */; };
 		0363C125274C7FED0039FB41 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0363C124274C7FED0039FB41 /* MainView.swift */; };
 		0363C127274C816B0039FB41 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0363C126274C816B0039FB41 /* Helper.swift */; };
 		0363C129274C81CC0039FB41 /* StartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0363C128274C81CC0039FB41 /* StartView.swift */; };
@@ -21,6 +22,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0311FEB427558F5B0094365B /* kiwi1000_2.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = kiwi1000_2.mlmodel; sourceTree = "<group>"; };
 		0363C124274C7FED0039FB41 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		0363C126274C816B0039FB41 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		0363C128274C81CC0039FB41 /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
@@ -75,6 +77,7 @@
 				0363C126274C816B0039FB41 /* Helper.swift */,
 				0363C128274C81CC0039FB41 /* StartView.swift */,
 				0363C12A274C87110039FB41 /* ViewRouter.swift */,
+				0311FEB427558F5B0094365B /* kiwi1000_2.mlmodel */,
 				258AE2AA2653EDBD00FAE6DB /* Assets.xcassets */,
 				258AE2AF2653EDBD00FAE6DB /* Info.plist */,
 				258AE2AC2653EDBD00FAE6DB /* Preview Content */,
@@ -161,6 +164,7 @@
 			files = (
 				0363C12B274C87110039FB41 /* ViewRouter.swift in Sources */,
 				258AE2A92653EDBA00FAE6DB /* ContentView.swift in Sources */,
+				0311FEB527558F5C0094365B /* kiwi1000_2.mlmodel in Sources */,
 				0363C127274C816B0039FB41 /* Helper.swift in Sources */,
 				0363C125274C7FED0039FB41 /* MainView.swift in Sources */,
 				0363C129274C81CC0039FB41 /* StartView.swift in Sources */,
