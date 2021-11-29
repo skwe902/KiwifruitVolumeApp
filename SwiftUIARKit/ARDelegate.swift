@@ -29,6 +29,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     }
     
     @objc func panOnARView(sender: UIPanGestureRecognizer) {
+        //for swipe
         guard let arView = arView else { return }
         let location = sender.location(in: arView)
         switch sender.state {
@@ -50,7 +51,10 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         guard let arView = arView else { return }
+        //get the coordinates of the tapped circles in CGPoint struct
         let location = sender.location(in: arView)
+        //let location = CGPoint(x:100,y:100) create a point at (100,100)
+        print(location)
         if let node = nodeAtLocation(location) {
             removeCircle(node: node)
         }
@@ -111,22 +115,22 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     private func nodesUpdated() { //take the measurement and update the message
         if circles.count == 2 && count == 1{ //first measurement
             let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1]) //calculate the distance between the two circles
-            print("X length = \(distance)")
+            //print("X length = \(distance)")
             message = "X length " + String(format: "%.2f cm", distance)
             xDistance = distance / 2
             count = 2
         }
         else if circles.count == 2 && count == 2{ //second measurement
             let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-            print("Y length = \(distance)")
+            //print("Y length = \(distance)")
             yDistance = distance / 2
             if (xDistance < yDistance){
                 volume = 4/3 * Float.pi * xDistance * yDistance * xDistance
-                print("Volume = \(volume)")
+                //print("Volume = \(volume)")
             }
             else{ //if yDistance is smaller or equal to xDistance
                 volume = 4/3 * Float.pi * yDistance * yDistance * xDistance
-                print("Volume = \(volume)")
+                //print("Volume = \(volume)")
             }
             message = "Y length " + String(format: "%.2f cm", distance) + " / Add reference point"
             count = 3
@@ -143,11 +147,11 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         else if circles.count == 2 && count == 3{
             let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-            print("Depth = \(distance)")
+            //print("Depth = \(distance)")
             zDistance = distance
             volume = 4/3 * Float.pi * xDistance * yDistance * zDistance
             message = "Volume " + String(format: "%.2f cm", volume)
-            print("Volume w. depth = \(volume)")
+            //print("Volume w. depth = \(volume)")
             count = 1
         }
     }
