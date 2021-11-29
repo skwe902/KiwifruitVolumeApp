@@ -64,7 +64,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             fatalError("Failed to load Vision ML model.")
         }
     }()
-    
+    // TODO: midPoint = CGPoint(x: 100, y:100) needs placement here
     func processDetections(for request: VNRequest, error: Error?) {
         guard error == nil else {
             print("Object detection error: \(error!.localizedDescription)")
@@ -72,7 +72,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         
         guard let results = request.results else { return }
-        
+        //midPoint = CGPoint(x: 100, y:100) <- needs implementation
         for observation in results where observation is VNRecognizedObjectObservation {
             guard let objectObservation = observation as? VNRecognizedObjectObservation,
                 let topLabelObservation = objectObservation.labels.first,
