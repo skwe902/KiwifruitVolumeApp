@@ -24,30 +24,30 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
         arView.addGestureRecognizer(tapGesture)
         
-        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panOnARView))
-        arView.addGestureRecognizer(panGesture)
+//        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panOnARView))
+//        arView.addGestureRecognizer(panGesture)
     }
     
-    @objc func panOnARView(sender: UIPanGestureRecognizer) {
-        //for swipe
-        guard let arView = arView else { return }
-        let location = sender.location(in: arView)
-        switch sender.state {
-        case .began:
-            if let node = nodeAtLocation(location) {
-                trackedNode = node
-            }
-        case .changed:
-            if let node = trackedNode {
-                if let result = raycastResult(fromLocation: location) {
-                    moveNode(node, raycastResult:result)
-                }
-            }
-        default:
-            ()
-        }
-        
-    }
+//    @objc func panOnARView(sender: UIPanGestureRecognizer) {
+//        //for swipe
+//        guard let arView = arView else { return }
+//        let location = sender.location(in: arView)
+//        switch sender.state {
+//        case .began:
+//            if let node = nodeAtLocation(location) {
+//                trackedNode = node
+//            }
+//        case .changed:
+//            if let node = trackedNode {
+//                if let result = raycastResult(fromLocation: location) {
+//                    moveNode(node, raycastResult:result)
+//                }
+//            }
+//        default:
+//            ()
+//        }
+//
+//    }
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         guard let arView = arView else { return }
