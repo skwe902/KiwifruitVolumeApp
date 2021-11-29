@@ -30,13 +30,13 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         guard let arView = arView else { return }
         //get the coordinates of the tapped circles in CGPoint struct
-        let location = sender.location(in: arView)
-        //let location = CGPoint(x:100,y:100) create a point at (100,100)
+        //let location = sender.location(in: arView)
+        let location = midPoint
         print(location)
-        if let node = nodeAtLocation(location) {
+        if let node = nodeAtLocation(location!) {
             removeCircle(node: node)
         }
-        else if let result = raycastResult(fromLocation: location) {
+        else if let result = raycastResult(fromLocation: location!) {
             addCircle(raycastResult: result)
         }
     }
@@ -80,26 +80,26 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 topLabelObservation.confidence > 0.9
                 else { continue }
             
-            guard let currentFrame = arView.session.currentFrame else { continue }
+            guard let currentFrame = arView?.session.currentFrame else { continue }
         
             // Get the affine transform to convert between normalized image coordinates and view coordinates
-            let fromCameraImageToViewTransform = currentFrame.displayTransform(for: .portrait, viewportSize: viewportSize)
-            // The observation's bounding box in normalized image coordinates
-            let boundingBox = objectObservation.boundingBox
-            // Transform the latter into normalized view coordinates
-            let viewNormalizedBoundingBox = boundingBox.applying(fromCameraImageToViewTransform)
-            // The affine transform for view coordinates
-            let t = CGAffineTransform(scaleX: viewportSize.width, y: viewportSize.height)
-            // Scale up to view coordinates
-            let viewBoundingBox = viewNormalizedBoundingBox.applying(t)
+//            let fromCameraImageToViewTransform = currentFrame.displayTransform(for: .portrait, viewportSize: viewportSize)
+//            // The observation's bounding box in normalized image coordinates
+//            let boundingBox = objectObservation.boundingBox
+//            // Transform the latter into normalized view coordinates
+//            let viewNormalizedBoundingBox = boundingBox.applying(fromCameraImageToViewTransform)
+//            // The affine transform for view coordinates
+//            let t = CGAffineTransform(scaleX: viewportSize.width, y: viewportSize.height)
+//            // Scale up to view coordinates
+//            let viewBoundingBox = viewNormalizedBoundingBox.applying(t)
 
-            let midPoint = CGPoint(x: viewBoundingBox.midX,
-                       y: viewBoundingBox.midY)
+//            let midPoint = CGPoint(x: viewBoundingBox.midX,
+//                       y: viewBoundingBox.midY)
         }
     }
     
     // MARK: - Private
-
+    private var midPoint: CGPoint?
     private var arView: ARSCNView?
     private var circles:[SCNNode] = []
     private var trackedNode:SCNNode?
