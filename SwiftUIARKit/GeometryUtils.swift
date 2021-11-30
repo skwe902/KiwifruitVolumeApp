@@ -23,7 +23,7 @@ class GeometryUtils {
     }
     
     static func calculateDepth(first: SCNVector3, second: SCNVector3, third: SCNVector3, fourth: SCNVector3, fifth: SCNVector3) -> Float {
-        //TODO: needs work
+        //MARK: TODO: needs work
         var depth = calculateDistance(first: second, second: third) / 2 + calculateDistance(first: fourth, second: fifth) / 2
         depth = abs(depth)
         return depth
