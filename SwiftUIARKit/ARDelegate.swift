@@ -17,12 +17,16 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     func setARView(_ arView: ARSCNView) {
         self.arView = arView
         let configuration = ARWorldTrackingConfiguration()
-        configuration.planeDetection = .horizontal
+        //configuration.planeDetection = []
+        configuration.planeDetection = [.horizontal, .vertical]
         arView.session.run(configuration)
         arView.delegate = self
         arView.scene = SCNScene()
+        
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
         arView.addGestureRecognizer(tapGesture)
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panOnARView))
+        arView.addGestureRecognizer(panGesture)
     }
     
     
@@ -35,6 +39,25 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         else if let result = raycastResult(fromLocation: location!) {
             addCircle(raycastResult: result)
+        }
+    }
+    
+    @objc func panOnARView(sender: UIPanGestureRecognizer) {
+        guard let arView = arView else { return }
+        let location = sender.location(in: arView)
+        switch sender.state {
+        case .began:
+            if let node = nodeAtLocation(location) {
+                trackedNode = node
+            }
+        case .changed:
+            if let node = trackedNode {
+                if let result = raycastResult(fromLocation: location) {
+                    moveNode(node, raycastResult:result)
+                }
+            }
+        default:
+            ()
         }
     }
     
@@ -184,7 +207,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         guard let arView = arView,
               let query = arView.raycastQuery(from: location,
                                         allowing: .existingPlaneGeometry,
-                                        alignment: .horizontal) else { return nil }
+                                        alignment: .any) else { return nil } //change here horizontal/vertical
+                //let query = arView.raycastQuery(from: location, allowing: .existingPlaneInfinite, alignment: .any) else {return nil}
         let results = arView.session.raycast(query)
         return results.first
     }
