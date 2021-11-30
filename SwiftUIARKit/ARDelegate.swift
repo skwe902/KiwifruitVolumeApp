@@ -17,7 +17,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     func setARView(_ arView: ARSCNView) {
         self.arView = arView
         let configuration = ARWorldTrackingConfiguration()
-        //configuration.planeDetection = []
         configuration.planeDetection = [.horizontal, .vertical]
         arView.session.run(configuration)
         arView.delegate = self
@@ -31,15 +30,17 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
-        //get the coordinates of the tapped circles in CGPoint(x,y)
-        let location = centerPoint
-        print(location)
-        if let node = nodeAtLocation(location!) {
-            removeCircle(node: node)
+        //get the coordinates of the circles in CGPoint(x,y) - centerPoint, upPoint, downPoint, leftPoint, rightPoint
+        let locationArray = [centerPoint, upPoint, downPoint, leftPoint, rightPoint]
+        for location in locationArray {
+            if let node = nodeAtLocation(location!) { //if circle already exists at the location, remove circle
+                removeCircle(node: node)
+            }
+            else if let result = raycastResult(fromLocation: location!) {
+                addCircle(raycastResult: result)
+            }
         }
-        else if let result = raycastResult(fromLocation: location!) {
-            addCircle(raycastResult: result)
-        }
+        nodesUpdated()
     }
     
     @objc func panOnARView(sender: UIPanGestureRecognizer) {
@@ -87,6 +88,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
     }
     
+//MARK: ML kiwifruit Detection
+    
     lazy var objectDetectionRequest: VNCoreMLRequest = {
         //load the ML model
         do {
@@ -115,15 +118,12 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 else { continue }
             //get the bounding box around the kiwifruit
             let boundingBox = objectObservation.boundingBox
-            // MARK: TODO
-            //Need to automatically point all five points on tap
+            //Set all the 5 points around the detected kiwifruit
             centerPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
             downPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.minY*1366)
             upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
             rightPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
             leftPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
-            print(boundingBox.midX)
-            print(boundingBox.midY)
         }
     }
     
@@ -144,7 +144,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     private func addCircle(raycastResult: ARRaycastResult) {
         let circleNode = GeometryUtils.createCircle(fromRaycastResult: raycastResult)
-        if circles.count >= 2 { // if more than 2 circles are on the screen
+        if circles.count >= 5 {
             for circle in circles {
                 circle.removeFromParentNode()
             }
@@ -152,7 +152,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         arView?.scene.rootNode.addChildNode(circleNode)
         circles.append(circleNode)
-        nodesUpdated()
+        //nodesUpdated()
     }
     
     private func moveNode(_ node:SCNNode, raycastResult:ARRaycastResult) {
@@ -166,48 +166,22 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         return result.first?.node
     }
     
-    private func nodesUpdated() { //take the measurement and update the message
-        if circles.count == 2 && count == 1{ //first measurement
-            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1]) //calculate the distance between the two circles
-            message = "X length " + String(format: "%.2f cm", distance)
-            xDistance = distance / 2
-            count = 2
-        }
-        else if circles.count == 2 && count == 2{ //second measurement
-            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-            yDistance = distance / 2
-            if (xDistance < yDistance){
-                volume = 4/3 * Float.pi * xDistance * yDistance * xDistance
-            }
-            else{ //if yDistance is smaller or equal to xDistance
-                volume = 4/3 * Float.pi * yDistance * yDistance * xDistance
-            }
-            message = "Y length " + String(format: "%.2f cm", distance) + " / Add reference point"
-            count = 3
-        }
-        else if circles.count == 1 && count == 1 {
-            message = "add second X point"
-        }
-        else if circles.count == 1 && count == 2{
-            message = "add second Y point"
-        }
-        else if circles.count == 1 && count == 3{
-            message = "add center point"
-        }
-        else if circles.count == 2 && count == 3{
-            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-            zDistance = distance
-            volume = 4/3 * Float.pi * xDistance * yDistance * zDistance
-            message = "Volume " + String(format: "%.2f cm", volume)
-            count = 1
-        }
+    private func nodesUpdated(){
+        //circles = center, up, down, left right
+        //print(circles)
+        let yDistance = GeometryUtils.calculateDistance(firstNode: circles[1], secondNode: circles[2])
+        let xDistance = GeometryUtils.calculateDistance(firstNode: circles[3], secondNode: circles[4])
+        //let depth = GeometryUtils.calculateDepth(firstNode: circles[0], secondNode: circles[1], thirdNode: circles[2], fourthNode: circles[3], fifthNode: circles[4])
+        //calculate volume of spheroid = 4/3 * pi * a * b * c
+        volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
+        message = "Volume " + String(format: "%.2f cm3", volume)
     }
     
     private func raycastResult(fromLocation location: CGPoint) -> ARRaycastResult? {
         guard let arView = arView,
               let query = arView.raycastQuery(from: location,
                                         allowing: .existingPlaneGeometry,
-                                        alignment: .any) else { return nil } //change here horizontal/vertical
+                                        alignment: .any) else { return nil }
                 //let query = arView.raycastQuery(from: location, allowing: .existingPlaneInfinite, alignment: .any) else {return nil}
         let results = arView.session.raycast(query)
         return results.first
@@ -218,3 +192,41 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         circles.removeAll(where: { $0 == node })
     }
 }
+    //MARK: Old nodesUpdated
+//    private func nodesUpdated() { //take the measurement and update the message
+//        if circles.count == 2 && count == 1{ //first measurement
+//            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1]) //calculate the distance between the two circles
+//            message = "X length " + String(format: "%.2f cm", distance)
+//            xDistance = distance / 2
+//            count = 2
+//        }
+//        else if circles.count == 2 && count == 2{ //second measurement
+//            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
+//            yDistance = distance / 2
+//            if (xDistance < yDistance){
+//                volume = 4/3 * Float.pi * xDistance * yDistance * xDistance
+//            }
+//            else{ //if yDistance is smaller or equal to xDistance
+//                volume = 4/3 * Float.pi * yDistance * yDistance * xDistance
+//            }
+//            message = "Y length " + String(format: "%.2f cm", distance) + " / Add reference point"
+//            count = 3
+//        }
+//        else if circles.count == 1 && count == 1 {
+//            message = "add second X point"
+//        }
+//        else if circles.count == 1 && count == 2{
+//            message = "add second Y point"
+//        }
+//        else if circles.count == 1 && count == 3{
+//            message = "add center point"
+//        }
+//        else if circles.count == 2 && count == 3{
+//            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
+//            zDistance = distance
+//            volume = 4/3 * Float.pi * xDistance * yDistance * zDistance
+//            message = "Volume " + String(format: "%.2f cm", volume)
+//            count = 1
+//        }
+//    }
+    
