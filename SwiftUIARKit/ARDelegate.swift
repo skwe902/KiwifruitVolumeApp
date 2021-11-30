@@ -140,6 +140,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     private var volume: Float = 0
     
     private func addCircle(raycastResult: ARRaycastResult) {
+        //MARK: -> issue here
         let circleNode = GeometryUtils.createCircle(fromRaycastResult: raycastResult)
         if circles.count >= 5 {
             for circle in circles {
@@ -165,7 +166,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     private func nodesUpdated(){
         //circles = center, up, down, left right
-        //fix index out of range issue - wait for the values to be in the array
         if circles.indices.contains(1) && circles.indices.contains(2) && circles.indices.contains(3) && circles.indices.contains(4){
             let yDistance = GeometryUtils.calculateDistance(firstNode: circles[1], secondNode: circles[2])
             let xDistance = GeometryUtils.calculateDistance(firstNode: circles[3], secondNode: circles[4])
