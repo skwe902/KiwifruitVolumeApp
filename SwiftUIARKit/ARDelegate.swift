@@ -28,7 +28,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         //get the coordinates of the tapped circles in CGPoint(x,y)
-        let location = midPoint
+        let location = centerPoint
         print(location)
         if let node = nodeAtLocation(location!) {
             removeCircle(node: node)
@@ -57,7 +57,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
                                                         orientation: .leftMirrored,
                                                         options: [:])
-        
         do {
             try imageRequestHandler.perform([objectDetectionRequest])
         } catch {
@@ -95,14 +94,22 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             let boundingBox = objectObservation.boundingBox
             // MARK: TODO
             //Need to automatically point all five points on tap
-            midPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
+            centerPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
+            downPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.minY*1366)
+            upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
+            rightPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
+            leftPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
             print(boundingBox.midX)
             print(boundingBox.midY)
         }
     }
     
     // MARK: - Private
-    private var midPoint: CGPoint?
+    private var centerPoint: CGPoint?
+    private var upPoint: CGPoint?
+    private var downPoint: CGPoint?
+    private var rightPoint: CGPoint?
+    private var leftPoint: CGPoint?
     private var arView: ARSCNView?
     private var circles:[SCNNode] = []
     private var trackedNode:SCNNode?
