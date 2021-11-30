@@ -33,7 +33,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         //get the coordinates of the tapped circles in CGPoint struct
         //let location = sender.location(in: arView)
         let location = midPoint
-        //let location = CGPoint(x: 1000, y: 1250)
         print(location)
         if let node = nodeAtLocation(location!) {
             removeCircle(node: node)
@@ -81,7 +80,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             fatalError("Failed to load Vision ML model.")
         }
     }()
-    // TODO: midPoint = CGPoint(x: 100, y:100) needs placement here
+    
     func processDetections(for request: VNRequest, error: Error?) {
         guard error == nil else {
             print("Object detection error: \(error!.localizedDescription)")
@@ -97,23 +96,12 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 topLabelObservation.confidence > 0.9
                 else { continue }
             
-            //guard let currentFrame = arView?.session.currentFrame else { continue }
-        
-            // Get the affine transform to convert between normalized image coordinates and view coordinates
-            //let fromCameraImageToViewTransform = currentFrame.displayTransform(for: .portrait, viewportSize: viewportSize)
-//            // The observation's bounding box in normalized image coordinates
             let boundingBox = objectObservation.boundingBox
-//            // Transform the latter into normalized view coordinates
-           // let viewNormalizedBoundingBox = boundingBox.applying(fromCameraImageToViewTransform)
-//            // The affine transform for view coordinates
-          //  let t = CGAffineTransform(scaleX: viewportSize.width, y: viewportSize.height)
-//            // Scale up to view coordinates
-           // let viewBoundingBox = viewNormalizedBoundingBox.applying(t)
-
+            // MARK: TODO
+            //Need to automatically point all five points on tap
             midPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
             print(boundingBox.midX)
             print(boundingBox.midY)
-            //midPoint = CGPoint(x: 100, y:100)
         }
     }
     
@@ -183,7 +171,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         else if circles.count == 1 && count == 2{
             message = "add second Y point"
         }
-        //TODO: check if the AR can measure depth and use that to create a more accurate measurement
         else if circles.count == 1 && count == 3{
             message = "add center point"
         }
