@@ -12,7 +12,6 @@ import Vision
 
 class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     @Published var message:String = "starting AR"
-    
 
     func setARView(_ arView: ARSCNView) {
         self.arView = arView
@@ -27,7 +26,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panOnARView))
         arView.addGestureRecognizer(panGesture)
     }
-    
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         //get the coordinates of the circles in CGPoint(x,y) - centerPoint, upPoint, downPoint, leftPoint, rightPoint
@@ -124,6 +122,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
             rightPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
             leftPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
+            print(1024-boundingBox.midX*1024)
+            print(1366-boundingBox.midY*1366)
         }
     }
     
