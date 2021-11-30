@@ -16,11 +16,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
 
     func setARView(_ arView: ARSCNView) {
         self.arView = arView
-        
         let configuration = ARWorldTrackingConfiguration()
         configuration.planeDetection = .horizontal
         arView.session.run(configuration)
-        
         arView.delegate = self
         arView.scene = SCNScene()
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
@@ -29,9 +27,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
-        //guard let arView = arView else { return }
-        //get the coordinates of the tapped circles in CGPoint struct
-        //let location = sender.location(in: arView)
+        //get the coordinates of the tapped circles in CGPoint(x,y)
         let location = midPoint
         print(location)
         if let node = nodeAtLocation(location!) {
@@ -70,6 +66,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     }
     
     lazy var objectDetectionRequest: VNCoreMLRequest = {
+        //load the ML model
         do {
             let model = try VNCoreMLModel(for: kiwi1000_2(configuration: MLModelConfiguration()).model)
             let request = VNCoreMLRequest(model: model) { [weak self] request, error in
@@ -88,14 +85,13 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         
         guard let results = request.results else { return }
-        //midPoint = CGPoint(x: 100, y:100) <- needs implementation
         for observation in results where observation is VNRecognizedObjectObservation {
             guard let objectObservation = observation as? VNRecognizedObjectObservation,
                 let topLabelObservation = objectObservation.labels.first,
                 topLabelObservation.identifier == "kiwifruit",
                 topLabelObservation.confidence > 0.9
                 else { continue }
-            
+            //get the bounding box around the kiwifruit
             let boundingBox = objectObservation.boundingBox
             // MARK: TODO
             //Need to automatically point all five points on tap
@@ -124,10 +120,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             circles.removeAll()
         }
-        
         arView?.scene.rootNode.addChildNode(circleNode)
         circles.append(circleNode)
-        
         nodesUpdated()
     }
     
@@ -145,22 +139,18 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     private func nodesUpdated() { //take the measurement and update the message
         if circles.count == 2 && count == 1{ //first measurement
             let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1]) //calculate the distance between the two circles
-            //print("X length = \(distance)")
             message = "X length " + String(format: "%.2f cm", distance)
             xDistance = distance / 2
             count = 2
         }
         else if circles.count == 2 && count == 2{ //second measurement
             let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-            //print("Y length = \(distance)")
             yDistance = distance / 2
             if (xDistance < yDistance){
                 volume = 4/3 * Float.pi * xDistance * yDistance * xDistance
-                //print("Volume = \(volume)")
             }
             else{ //if yDistance is smaller or equal to xDistance
                 volume = 4/3 * Float.pi * yDistance * yDistance * xDistance
-                //print("Volume = \(volume)")
             }
             message = "Y length " + String(format: "%.2f cm", distance) + " / Add reference point"
             count = 3
@@ -176,11 +166,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         else if circles.count == 2 && count == 3{
             let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-            //print("Depth = \(distance)")
             zDistance = distance
             volume = 4/3 * Float.pi * xDistance * yDistance * zDistance
             message = "Volume " + String(format: "%.2f cm", volume)
-            //print("Volume w. depth = \(volume)")
             count = 1
         }
     }
