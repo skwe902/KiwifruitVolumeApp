@@ -53,6 +53,21 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
     }
     
+    func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
+        // Get the capture image (which is a cvPixelBuffer) from the current ARFrame
+        guard let capturedImage = arView?.session.currentFrame?.capturedImage else { return }
+        
+        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
+                                                        orientation: .leftMirrored,
+                                                        options: [:])
+        
+        do {
+            try imageRequestHandler.perform([objectDetectionRequest])
+        } catch {
+            print("Failed to perform image request.")
+        }
+    }
+    
     lazy var objectDetectionRequest: VNCoreMLRequest = {
         do {
             let model = try VNCoreMLModel(for: kiwi1000_2(configuration: MLModelConfiguration()).model)
@@ -76,7 +91,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         for observation in results where observation is VNRecognizedObjectObservation {
             guard let objectObservation = observation as? VNRecognizedObjectObservation,
                 let topLabelObservation = objectObservation.labels.first,
-                topLabelObservation.identifier == "remote",
+                topLabelObservation.identifier == "kiwifruit",
                 topLabelObservation.confidence > 0.9
                 else { continue }
             
@@ -95,6 +110,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
 
 //            let midPoint = CGPoint(x: viewBoundingBox.midX,
 //                       y: viewBoundingBox.midY)
+            midPoint = CGPoint(x: 100, y:100)
         }
     }
     
