@@ -119,8 +119,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
             rightPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
             leftPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
-            print(1024-boundingBox.midX*1024)
-            print(1366-boundingBox.midY*1366)
+            print("center X: \(1024-boundingBox.midX*1024)")
+            print("center Y: \(1366-boundingBox.midY*1366)")
         }
     }
     
