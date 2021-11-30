@@ -31,10 +31,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         //get the coordinates of the circles in CGPoint(x,y) - centerPoint, upPoint, downPoint, leftPoint, rightPoint
         let locationArray = [centerPoint, upPoint, downPoint, leftPoint, rightPoint]
         for location in locationArray {
-            if let node = nodeAtLocation(location!) { //if circle already exists at the location, remove circle
-                removeCircle(node: node)
-            }
-            else if let result = raycastResult(fromLocation: location!) {
+            if let result = raycastResult(fromLocation: location!) {
                 addCircle(raycastResult: result)
             }
         }
@@ -168,13 +165,15 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     private func nodesUpdated(){
         //circles = center, up, down, left right
-        //print(circles)
-        let yDistance = GeometryUtils.calculateDistance(firstNode: circles[1], secondNode: circles[2])
-        let xDistance = GeometryUtils.calculateDistance(firstNode: circles[3], secondNode: circles[4])
-        //let depth = GeometryUtils.calculateDepth(firstNode: circles[0], secondNode: circles[1], thirdNode: circles[2], fourthNode: circles[3], fifthNode: circles[4])
-        //calculate volume of spheroid = 4/3 * pi * a * b * c
-        volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
-        message = "Volume " + String(format: "%.2f cm3", volume)
+        //fix index out of range issue - wait for the values to be in the array
+        if circles.indices.contains(1) && circles.indices.contains(2) && circles.indices.contains(3) && circles.indices.contains(4){
+            let yDistance = GeometryUtils.calculateDistance(firstNode: circles[1], secondNode: circles[2])
+            let xDistance = GeometryUtils.calculateDistance(firstNode: circles[3], secondNode: circles[4])
+            //let depth = GeometryUtils.calculateDepth(firstNode: circles[0], secondNode: circles[1], thirdNode: circles[2], fourthNode: circles[3], fifthNode: circles[4])
+            //calculate volume of spheroid = 4/3 * pi * a * b * c
+            volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
+            message = "Volume " + String(format: "%.2f cm3", volume)
+        }
     }
     
     private func raycastResult(fromLocation location: CGPoint) -> ARRaycastResult? {
