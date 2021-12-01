@@ -31,8 +31,13 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         //get the coordinates of the circles in CGPoint(x,y) - centerPoint, upPoint, downPoint, leftPoint, rightPoint
         let locationArray = [centerPoint, upPoint, downPoint, leftPoint, rightPoint]
         for location in locationArray {
-            if let result = raycastResult(fromLocation: location!) {
-                addCircle(raycastResult: result)
+            if (location != nil){
+                if let result = raycastResult(fromLocation: location!) {
+                    addCircle(raycastResult: result)
+                }
+            }
+            else{
+                continue
             }
         }
         nodesUpdated()
