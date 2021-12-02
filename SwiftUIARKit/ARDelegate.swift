@@ -15,8 +15,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
 
     func setARView(_ arView: ARSCNView) {
         self.arView = arView
-        let configuration = ARWorldTrackingConfiguration()
-        configuration.planeDetection = [.horizontal, .vertical]
+        let configuration = setupARConfiguration()
         arView.session.run(configuration)
         arView.delegate = self
         arView.scene = SCNScene()
@@ -27,7 +26,18 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         arView.addGestureRecognizer(panGesture)
     }
     
+    func setupARConfiguration() -> ARConfiguration{
+        let configuration = ARWorldTrackingConfiguration()
+        configuration.planeDetection = [.horizontal, .vertical]
+        //if depth measurement is available (lidar)
+        if ARWorldTrackingConfiguration.supportsFrameSemantics(.sceneDepth){
+            configuration.frameSemantics = .sceneDepth
+        }
+        return configuration
+    }
+    
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
+        //this gets the coordinates of the bounding box when the user taps on screen
         //get the coordinates of the circles in CGPoint(x,y) - centerPoint, upPoint, downPoint, leftPoint, rightPoint
         let locationArray = [centerPoint, upPoint, downPoint, leftPoint, rightPoint]
         for location in locationArray {
@@ -75,9 +85,11 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     }
     
     func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
-        // Get the capture image (which is a cvPixelBuffer) from the current ARFrame
-        guard let capturedImage = arView?.session.currentFrame?.capturedImage else { return }
-        
+        // Get the capture image and the depthmap (which is a cvPixelBuffer) from the current ARFrame
+        guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthImage = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
+        //MARK: get depth image
+        print(CVPixelBufferGetHeight(depthImage))
+        print(CVPixelBufferGetWidth(depthImage)) 
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
                                                         orientation: .leftMirrored,
                                                         options: [:])
@@ -124,8 +136,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
             rightPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
             leftPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
-            print("center X: \(1024-boundingBox.midX*1024)")
-            print("center Y: \(1366-boundingBox.midY*1366)")
+//            print("center X: \(1024-boundingBox.midX*1024)")
+//            print("center Y: \(1366-boundingBox.midY*1366)")
         }
     }
     
@@ -196,41 +208,5 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         circles.removeAll(where: { $0 == node })
     }
 }
-    //MARK: Old nodesUpdated
-//    private func nodesUpdated() { //take the measurement and update the message
-//        if circles.count == 2 && count == 1{ //first measurement
-//            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1]) //calculate the distance between the two circles
-//            message = "X length " + String(format: "%.2f cm", distance)
-//            xDistance = distance / 2
-//            count = 2
-//        }
-//        else if circles.count == 2 && count == 2{ //second measurement
-//            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-//            yDistance = distance / 2
-//            if (xDistance < yDistance){
-//                volume = 4/3 * Float.pi * xDistance * yDistance * xDistance
-//            }
-//            else{ //if yDistance is smaller or equal to xDistance
-//                volume = 4/3 * Float.pi * yDistance * yDistance * xDistance
-//            }
-//            message = "Y length " + String(format: "%.2f cm", distance) + " / Add reference point"
-//            count = 3
-//        }
-//        else if circles.count == 1 && count == 1 {
-//            message = "add second X point"
-//        }
-//        else if circles.count == 1 && count == 2{
-//            message = "add second Y point"
-//        }
-//        else if circles.count == 1 && count == 3{
-//            message = "add center point"
-//        }
-//        else if circles.count == 2 && count == 3{
-//            let distance = GeometryUtils.calculateDistance(firstNode: circles[0], secondNode: circles[1])
-//            zDistance = distance
-//            volume = 4/3 * Float.pi * xDistance * yDistance * zDistance
-//            message = "Volume " + String(format: "%.2f cm", volume)
-//            count = 1
-//        }
-//    }
+
     
