@@ -28,7 +28,7 @@ class GeometryUtils {
         let avgYhyp = calculateDistance(first: first, second: second) / 2 + calculateDistance(first: first, second: third) / 2 //get the avg hypotenuse length
         let avgXhyp = calculateDistance(first: first, second: fourth) / 2 + calculateDistance(first: first, second: fifth) / 2 // get the avg hypotenuse length
         let depth:Float = sqrt(pow(avgXhyp, 2) - pow(xLength, 2))/2 + sqrt(pow(avgYhyp, 2) - pow(yLength, 2))/2
-        return depth //just pythagoras - doesnt work
+        return depth //just pythagoras using the averages - doesnt work
     }
     
     static func calculateDepth(firstNode: SCNNode, secondNode:SCNNode, thirdNode:SCNNode, fourthNode:SCNNode, fifthNode:SCNNode) -> Float { //function overloading

@@ -93,17 +93,31 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
         //MARK: get depth image - works only once
         //maybe instead of appending we should replace? https://developer.apple.com/documentation/swift/array/3126958-replacesubrange
+        //depthData
         let depthWidth = CVPixelBufferGetWidth(depthData)
         let depthHeight = CVPixelBufferGetHeight(depthData)
         CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
         let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
-        for y in 0...depthHeight-1{
-            var distancesLine = [Float32]()
-            for x in 0...depthWidth-1{
-                let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
-                distancesLine.append(distanceAtXYPoint)
+        if(depthArray.isEmpty){
+            for y in 0...depthHeight-1{
+                var distancesLine = [Float32]()
+                for x in 0...depthWidth-1{
+                    let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                    distancesLine.append(distanceAtXYPoint)
+                }
+                depthArray.append(distancesLine)
             }
-            depthArray.append(distancesLine)
+        }
+        else{
+            depthArray.removeAll()
+            for y in 0...depthHeight-1{
+                var distancesLine = [Float32]()
+                for x in 0...depthWidth-1{
+                    let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                    distancesLine.append(distanceAtXYPoint)
+                }
+                depthArray.append(distancesLine)
+            }
         }
         CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0)) //is locking needed? shouldnt be necessary if im accessing pixel data with gpu
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
@@ -160,7 +174,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
 //            print("left Y: \(leftPoint!.y)")
 //            print("right X: \(rightPoint!.x)")
 //            print("right Y: \(rightPoint!.y)")
-                
         }
     }
     
