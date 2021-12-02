@@ -54,7 +54,12 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
         }
         nodesUpdated()
-        print(depthArray[96][128]) //center point
+        globalFlag = 1 //set a flag to communicate with renderer func
+        
+        if(done == 1){
+            print(depthArray[96][128])
+            done = 0
+        }
     }
     
     @objc func panOnARView(sender: UIPanGestureRecognizer) {
@@ -98,28 +103,32 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let depthHeight = CVPixelBufferGetHeight(depthData)
         CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
         let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
-        if(depthArray.isEmpty){
-            for y in 0...depthHeight-1{
-                var distancesLine = [Float32]()
-                for x in 0...depthWidth-1{
-                    let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
-                    distancesLine.append(distanceAtXYPoint)
-                }
-                depthArray.append(distancesLine)
-            }
-        }
-        else{
-            depthArray.removeAll()
-            for y in 0...depthHeight-1{
-                var distancesLine = [Float32]()
-                for x in 0...depthWidth-1{
-                    let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
-                    distancesLine.append(distanceAtXYPoint)
-                }
-                depthArray.append(distancesLine)
-            }
-        }
         CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0)) //is locking needed? shouldnt be necessary if im accessing pixel data with gpu
+        if (globalFlag == 1){
+            if(depthArray.isEmpty){
+                for y in 0...depthHeight-1{
+                    var distancesLine = [Float32]()
+                    for x in 0...depthWidth-1{
+                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                        distancesLine.append(distanceAtXYPoint)
+                    }
+                    depthArray.append(distancesLine)
+                }
+            }
+            else{
+                depthArray.removeAll()
+                for y in 0...depthHeight-1{
+                    var distancesLine = [Float32]()
+                    for x in 0...depthWidth-1{
+                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                        distancesLine.append(distanceAtXYPoint)
+                    }
+                    depthArray.append(distancesLine)
+                }
+            }
+            globalFlag = 0
+            done = 1
+        }
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
                                                         orientation: .leftMirrored, //is this needed for the depth map as well?
                                                         options: [:])
@@ -128,6 +137,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         } catch {
             print("Failed to perform image request.")
         }
+    }
+    
+    func getDepthArray(){
     }
     
 //MARK: ML kiwifruit Detection
@@ -161,6 +173,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             //get the bounding box around the kiwifruit
             let boundingBox = objectObservation.boundingBox
             //Set all the 5 points around the detected kiwifruit
+            //translate to the coordinates on the screen
             centerPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
             upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.minY*1366)
             downPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
@@ -176,9 +189,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
 //            print("right Y: \(rightPoint!.y)")
         }
     }
-    
+    var globalFlag: Int = 0
+    var done: Int = 0
     // MARK: - Private
-    
     private var centerPoint: CGPoint?
     private var upPoint: CGPoint?
     private var downPoint: CGPoint?
