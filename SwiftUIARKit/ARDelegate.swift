@@ -12,6 +12,7 @@ import Vision
 
 class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     @Published var message:String = "starting AR"
+    var depthArray: [[Float32]] = []
 
     func setARView(_ arView: ARSCNView) {
         self.arView = arView
@@ -51,6 +52,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
         }
         nodesUpdated()
+        print(depthArray[96][128]) //center point
+        //dump(depthArray)
     }
     
     @objc func panOnARView(sender: UIPanGestureRecognizer) {
@@ -86,10 +89,21 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
         // Get the capture image and the depthmap (which is a cvPixelBuffer) from the current ARFrame
-        guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthImage = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
-        //MARK: get depth image
-        print(CVPixelBufferGetHeight(depthImage))
-        print(CVPixelBufferGetWidth(depthImage)) 
+        guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
+        //MARK: get depth image - works only once
+        let depthWidth = CVPixelBufferGetWidth(depthData)
+        let depthHeight = CVPixelBufferGetHeight(depthData)
+        CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
+        for y in 0...depthHeight-1{
+            var distancesLine = [Float32]()
+            for x in 0...depthWidth-1{
+                let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                distancesLine.append(distanceAtXYPoint)
+            }
+            depthArray.append(distancesLine)
+        }
+        
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
                                                         orientation: .leftMirrored,
                                                         options: [:])
@@ -138,10 +152,12 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             leftPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
 //            print("center X: \(1024-boundingBox.midX*1024)")
 //            print("center Y: \(1366-boundingBox.midY*1366)")
+                
         }
     }
     
     // MARK: - Private
+    
     private var centerPoint: CGPoint?
     private var upPoint: CGPoint?
     private var downPoint: CGPoint?

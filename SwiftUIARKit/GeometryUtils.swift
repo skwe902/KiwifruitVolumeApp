@@ -14,7 +14,7 @@ class GeometryUtils {
                 pow(second.z - first.z, 2)
         )
         
-        distance *= 100 // convert in cm
+        distance *= 100 // convert to cm
         return abs(distance) //return positive value
     }
     
