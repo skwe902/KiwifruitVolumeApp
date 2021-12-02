@@ -55,7 +55,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         nodesUpdated()
         print(depthArray[96][128]) //center point
-        //dump(depthArray)
     }
     
     @objc func panOnARView(sender: UIPanGestureRecognizer) {
@@ -93,6 +92,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         // Get the capture image and the depthmap (which is a cvPixelBuffer) from the current ARFrame
         guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
         //MARK: get depth image - works only once
+        //maybe instead of appending we should replace? https://developer.apple.com/documentation/swift/array/3126958-replacesubrange
         let depthWidth = CVPixelBufferGetWidth(depthData)
         let depthHeight = CVPixelBufferGetHeight(depthData)
         CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
@@ -105,9 +105,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             depthArray.append(distancesLine)
         }
-        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0)) //is locking needed? shouldnt be necessary if im accessing pixel data with gpu
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
-                                                        orientation: .leftMirrored,
+                                                        orientation: .leftMirrored, //is this needed for the depth map as well?
                                                         options: [:])
         do {
             try imageRequestHandler.perform([objectDetectionRequest])
@@ -148,12 +148,18 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             let boundingBox = objectObservation.boundingBox
             //Set all the 5 points around the detected kiwifruit
             centerPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
-            downPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.minY*1366)
-            upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
-            rightPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
-            leftPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
-//            print("center X: \(1024-boundingBox.midX*1024)")
-//            print("center Y: \(1366-boundingBox.midY*1366)")
+            upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.minY*1366)
+            downPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
+            leftPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
+            rightPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
+//            print("up X: \(upPoint!.x)")
+//            print("up Y: \(upPoint!.y)")
+//            print("down X: \(downPoint!.x)")
+//            print("down Y: \(downPoint!.y)")
+//            print("left X: \(leftPoint!.x)")
+//            print("left Y: \(leftPoint!.y)")
+//            print("right X: \(rightPoint!.x)")
+//            print("right Y: \(rightPoint!.y)")
                 
         }
     }
