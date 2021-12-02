@@ -13,7 +13,7 @@ struct ContentView: View { // this is the ContentView ui for the app (the actual
             ARViewRepresentable(arDelegate: arDelegate) //this is the camera
             VStack {
                 Spacer()
-                Text(arDelegate.message) //text displaying the results
+                Text(arDelegate.message + "\n" + arDelegate.message2 + "\n" + arDelegate.message3) //text displaying the results
                     .font(.title)
                     .fontWeight(.heavy)
                     .foregroundColor(Color(red: 1, green: 100/225, blue: 0))

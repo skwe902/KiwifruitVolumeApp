@@ -12,6 +12,8 @@ import Vision
 
 class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     @Published var message:String = "starting AR"
+    @Published var message2:String = "hello"
+    @Published var message3:String = "enjoy this app"
     var depthArray: [[Float32]] = []
 
     func setARView(_ arView: ARSCNView) {
@@ -103,7 +105,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             depthArray.append(distancesLine)
         }
-        
+        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
                                                         orientation: .leftMirrored,
                                                         options: [:])
@@ -206,6 +208,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             //calculate volume of spheroid = 4/3 * pi * a * b * c
             volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
             message = "Volume " + String(format: "%.2f cm3", volume)
+            message2 = "X length: " + String(format: "%.2f cm", xDistance)
+            message3 = "Y length: " + String(format: "%.2f cm", yDistance)
         }
     }
     
