@@ -55,9 +55,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         nodesUpdated()
         globalFlag = 1 //set a flag to communicate with renderer func
-        
         if(done == 1){
-            print(depthArray[96][128])
+            print("detected screen tap")
             done = 0
         }
     }
@@ -125,8 +124,11 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                     }
                     depthArray.append(distancesLine)
                 }
+                print("The array has finished")
+                print(depthArray[96][128])
             }
-            globalFlag = 0
+            //message = String(depthArray[96][128]) + "m"
+            globalFlag = 0 //reset flag
             done = 1
         }
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
@@ -189,6 +191,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
 //            print("right Y: \(rightPoint!.y)")
         }
     }
+    
     var globalFlag: Int = 0
     var done: Int = 0
     // MARK: - Private
