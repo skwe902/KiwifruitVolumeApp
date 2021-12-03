@@ -128,6 +128,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 print(depthArray[96][128])
             }
             //message = String(depthArray[96][128]) + "m"
+            //SwiftUI] Publishing changes from background threads is not allowed; make sure to publish values from the main thread (via operators like receive(on:)) on model updates.
             globalFlag = 0 //reset flag
             done = 1
         }
@@ -236,7 +237,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     private func nodesUpdated(){
         //circles = center, up, down, left right
-        if circles.indices.contains(1) && circles.indices.contains(2) && circles.indices.contains(3) && circles.indices.contains(4){
+        if circles.indices.contains(0) && circles.indices.contains(1) && circles.indices.contains(2) && circles.indices.contains(3) && circles.indices.contains(4){
             let yDistance = GeometryUtils.calculateDistance(firstNode: circles[1], secondNode: circles[2])
             let xDistance = GeometryUtils.calculateDistance(firstNode: circles[3], secondNode: circles[4])
             //let depth = GeometryUtils.calculateDepth(firstNode: circles[0], secondNode: circles[1], thirdNode: circles[2], fourthNode: circles[3], fifthNode: circles[4])
