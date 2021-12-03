@@ -301,10 +301,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIARKit/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"VolumeMeasurement/Preview Content\"";
 				DEVELOPMENT_TEAM = BQYWD4224M;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = SwiftUIARKit/Info.plist;
+				INFOPLIST_FILE = VolumeMeasurement/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -325,10 +325,10 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_ASSET_PATHS = "\"SwiftUIARKit/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "\"VolumeMeasurement/Preview Content\"";
 				DEVELOPMENT_TEAM = BQYWD4224M;
 				ENABLE_PREVIEWS = YES;
-				INFOPLIST_FILE = SwiftUIARKit/Info.plist;
+				INFOPLIST_FILE = VolumeMeasurement/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
