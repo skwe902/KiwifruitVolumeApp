@@ -27,7 +27,7 @@
 		0363C126274C816B0039FB41 /* Helper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
 		0363C128274C81CC0039FB41 /* StartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartView.swift; sourceTree = "<group>"; };
 		0363C12A274C87110039FB41 /* ViewRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewRouter.swift; sourceTree = "<group>"; };
-		258AE2A32653EDBA00FAE6DB /* SwiftUIARKit.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SwiftUIARKit.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		258AE2A32653EDBA00FAE6DB /* VolumeMeasurement.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VolumeMeasurement.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		258AE2A62653EDBA00FAE6DB /* SwiftUIARKitApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIARKitApp.swift; sourceTree = "<group>"; };
 		258AE2A82653EDBA00FAE6DB /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		258AE2AA2653EDBD00FAE6DB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -52,7 +52,7 @@
 		258AE29A2653EDBA00FAE6DB = {
 			isa = PBXGroup;
 			children = (
-				258AE2A52653EDBA00FAE6DB /* SwiftUIARKit */,
+				258AE2A52653EDBA00FAE6DB /* VolumeMeasurement */,
 				258AE2A42653EDBA00FAE6DB /* Products */,
 			);
 			sourceTree = "<group>";
@@ -60,12 +60,12 @@
 		258AE2A42653EDBA00FAE6DB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				258AE2A32653EDBA00FAE6DB /* SwiftUIARKit.app */,
+				258AE2A32653EDBA00FAE6DB /* VolumeMeasurement.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		258AE2A52653EDBA00FAE6DB /* SwiftUIARKit */ = {
+		258AE2A52653EDBA00FAE6DB /* VolumeMeasurement */ = {
 			isa = PBXGroup;
 			children = (
 				258AE2B72653F73C00FAE6DB /* ARDelegate.swift */,
@@ -82,7 +82,7 @@
 				258AE2AF2653EDBD00FAE6DB /* Info.plist */,
 				258AE2AC2653EDBD00FAE6DB /* Preview Content */,
 			);
-			path = SwiftUIARKit;
+			path = VolumeMeasurement;
 			sourceTree = "<group>";
 		};
 		258AE2AC2653EDBD00FAE6DB /* Preview Content */ = {
@@ -96,9 +96,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		258AE2A22653EDBA00FAE6DB /* SwiftUIARKit */ = {
+		258AE2A22653EDBA00FAE6DB /* VolumeMeasurement */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 258AE2B22653EDBD00FAE6DB /* Build configuration list for PBXNativeTarget "SwiftUIARKit" */;
+			buildConfigurationList = 258AE2B22653EDBD00FAE6DB /* Build configuration list for PBXNativeTarget "VolumeMeasurement" */;
 			buildPhases = (
 				258AE29F2653EDBA00FAE6DB /* Sources */,
 				258AE2A02653EDBA00FAE6DB /* Frameworks */,
@@ -108,9 +108,9 @@
 			);
 			dependencies = (
 			);
-			name = SwiftUIARKit;
+			name = VolumeMeasurement;
 			productName = ARKitTest;
-			productReference = 258AE2A32653EDBA00FAE6DB /* SwiftUIARKit.app */;
+			productReference = 258AE2A32653EDBA00FAE6DB /* VolumeMeasurement.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -127,7 +127,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 258AE29E2653EDBA00FAE6DB /* Build configuration list for PBXProject "SwiftUIARKit" */;
+			buildConfigurationList = 258AE29E2653EDBA00FAE6DB /* Build configuration list for PBXProject "VolumeMeasurement" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -140,7 +140,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				258AE2A22653EDBA00FAE6DB /* SwiftUIARKit */,
+				258AE2A22653EDBA00FAE6DB /* VolumeMeasurement */,
 			);
 		};
 /* End PBXProject section */
@@ -345,7 +345,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		258AE29E2653EDBA00FAE6DB /* Build configuration list for PBXProject "SwiftUIARKit" */ = {
+		258AE29E2653EDBA00FAE6DB /* Build configuration list for PBXProject "VolumeMeasurement" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				258AE2B02653EDBD00FAE6DB /* Debug */,
@@ -354,7 +354,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		258AE2B22653EDBD00FAE6DB /* Build configuration list for PBXNativeTarget "SwiftUIARKit" */ = {
+		258AE2B22653EDBD00FAE6DB /* Build configuration list for PBXNativeTarget "VolumeMeasurement" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				258AE2B32653EDBD00FAE6DB /* Debug */,
