@@ -10,8 +10,6 @@ The aim of the project was to create an ios app that could measure the volume of
 
 The inspiration was from the well-known "measurement" app that Apple has made, which could be downloaded here: https://apps.apple.com/us/app/measure/id1383426740
 
-The overall goal of the project was to implement ML object detection and lidar technologies to the measurement app to see if you can measure the volume of a kiwifruit.
-
 ## Project Outline:
 Initially, I have planned the app in three stages:
 
@@ -31,7 +29,7 @@ I wanted to use SwiftUI to make the UI instead of Storyboard, just to let the pr
 
 ## Stage 3: Utilizing Lidar & depth measurements
 
-## Structure of the files:
+## File Description:
 
-## Future Improvements:
+## Limitations and Future Works:
 
