@@ -2,7 +2,7 @@
 
 Written by **Andy Kweon** <br />
 
-This project was done during my internship as a machine learning intern.
+This project was done during my summer internship as a machine learning intern.
 
 ## Aim of the Project:
 
