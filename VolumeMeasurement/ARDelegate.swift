@@ -55,8 +55,19 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         nodesUpdated()
         globalFlag = 1 //set a flag to communicate with renderer func
-        if(done == 1){
+        if(done == 1){ //once renderer func says it has finished processing the data
             print("detected screen tap")
+            print(depthArray[96][128])
+            for locations in locationArray{
+                if (locations != nil){
+                    let lidarArray: [[Float32?]] = []
+                    //MARK: ERROR HERE
+                    lidarArray.append(GeometryUtils.convertToLidarCoord(locations!))
+                }
+                else{
+                    continue
+                }
+            }
             done = 0
         }
     }
@@ -92,17 +103,16 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
     }
     
+    //MARK: Lidar Reading
     func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
         // Get the capture image and the depthmap (which is a cvPixelBuffer) from the current ARFrame
         guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
-        //MARK: get depth image - works only once
-        //maybe instead of appending we should replace? https://developer.apple.com/documentation/swift/array/3126958-replacesubrange
-        //depthData
         let depthWidth = CVPixelBufferGetWidth(depthData)
         let depthHeight = CVPixelBufferGetHeight(depthData)
         CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
         let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
-        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0)) //is locking needed? shouldnt be necessary if im accessing pixel data with gpu
+        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        
         if (globalFlag == 1){
             if(depthArray.isEmpty){
                 for y in 0...depthHeight-1{
@@ -125,7 +135,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                     depthArray.append(distancesLine)
                 }
                 print("The array has finished")
-                print(depthArray[96][128])
+                //print(depthArray[96][128])
             }
             //message = String(depthArray[96][128]) + "m"
             //SwiftUI] Publishing changes from background threads is not allowed; make sure to publish values from the main thread (via operators like receive(on:)) on model updates.
@@ -140,9 +150,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         } catch {
             print("Failed to perform image request.")
         }
-    }
-    
-    func getDepthArray(){
     }
     
 //MARK: ML kiwifruit Detection
