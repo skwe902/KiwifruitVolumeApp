@@ -60,7 +60,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             print(depthArray[96][128])
             for locations in locationArray{
                 if (locations != nil){
-                    let lidarArray: [[Float32?]] = []
+                    let lidarArray: [CGPoint] = []
                     //MARK: ERROR HERE
                     lidarArray.append(GeometryUtils.convertToLidarCoord(locations!))
                 }
