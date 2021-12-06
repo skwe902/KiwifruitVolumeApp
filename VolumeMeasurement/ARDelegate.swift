@@ -11,9 +11,11 @@ import UIKit
 import Vision
 
 class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
-    @Published var message:String = "starting AR"
-    @Published var message2:String = "hello"
-    @Published var message3:String = "enjoy this app"
+    @Published var message:String = "Starting AR"
+    @Published var message2:String = "Tap anywhere on screen to measure volume"
+    @Published var message3:String = "Kiwifruit Measurement App"
+    
+    typealias FinishedRunning = () -> ()
     var depthArray: [[Float32]] = []
 
     func setARView(_ arView: ARSCNView) {
@@ -39,6 +41,58 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         return configuration
     }
     
+    //MARK: Lidar Reading
+    func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval){
+        //this will run once per every frame
+        // Get the capture image and the depthmap (which is a cvPixelBuffer) from the current ARFrame
+        guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
+        let depthWidth = CVPixelBufferGetWidth(depthData)
+        let depthHeight = CVPixelBufferGetHeight(depthData)
+        CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
+        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        
+        if (globalFlag == 1){
+            if(depthArray.isEmpty){
+                for y in 0...depthHeight-1{
+                    var distancesLine = [Float32]()
+                    for x in 0...depthWidth-1{
+                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                        distancesLine.append(distanceAtXYPoint)
+                    }
+                    depthArray.append(distancesLine)
+                }
+                globalFlag = 0 //reset flag
+                done = 1
+            }
+            else{
+                depthArray.removeAll()
+                for y in 0...depthHeight-1{
+                    var distancesLine = [Float32]()
+                    for x in 0...depthWidth-1{
+                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                        distancesLine.append(distanceAtXYPoint)
+                    }
+                    depthArray.append(distancesLine)
+                }
+                print("The array has finished")
+                globalFlag = 0 //reset flag
+                done = 1
+                print(depthArray[96][128])
+            }
+            //message = String(depthArray[96][128]) + "m"
+            //SwiftUI] Publishing changes from background threads is not allowed; make sure to publish values from the main thread (via operators like receive(on:)) on model updates.
+        }
+        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
+                                                        orientation: .leftMirrored, //is this needed for the depth map as well?
+                                                        options: [:])
+        do {
+            try imageRequestHandler.perform([objectDetectionRequest])
+        } catch {
+            print("Failed to perform image request.")
+        }
+    }
+    
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         //this gets the coordinates of the bounding box when the user taps on screen
         //get the coordinates of the circles in CGPoint(x,y) - centerPoint, upPoint, downPoint, leftPoint, rightPoint
@@ -53,16 +107,18 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 continue
             }
         }
-        nodesUpdated()
         globalFlag = 1 //set a flag to communicate with renderer func
         if(done == 1){ //once renderer func says it has finished processing the data
             print("detected screen tap")
             print(depthArray[96][128])
             for locations in locationArray{
                 if (locations != nil){
-                    let lidarArray: [CGPoint] = []
+                    var lidarArray: [CGPoint?] = []
+                    let lidarCoord = GeometryUtils.convertToLidarCoord(screenCoord: locations!)
                     //MARK: ERROR HERE
-                    lidarArray.append(GeometryUtils.convertToLidarCoord(locations!))
+                    lidarArray.append(lidarCoord)
+                    //print(lidarCoord.x)
+                    //print(lidarCoord.y)
                 }
                 else{
                     continue
@@ -70,7 +126,25 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             done = 0
         }
+        nodesUpdated()
     }
+//    camera did change normal
+//    detected screen tap
+//    0.82910156
+//    The array has finished
+//    0.8300781
+//    detected screen tap
+//    0.8300781
+//    The array has finished
+//    1.0332031
+//    detected screen tap
+//    1.0332031
+//    The array has finished
+//    0.6855469
+//    detected screen tap
+//    0.6855469
+//    The array has finished
+//    0.9716797
     
     @objc func panOnARView(sender: UIPanGestureRecognizer) {
         guard let arView = arView else { return }
@@ -100,55 +174,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             message =  "Ready to Measure" //tracking ready
         case .notAvailable:
             message = "Cannot Measure" //cannot track
-        }
-    }
-    
-    //MARK: Lidar Reading
-    func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
-        // Get the capture image and the depthmap (which is a cvPixelBuffer) from the current ARFrame
-        guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
-        let depthWidth = CVPixelBufferGetWidth(depthData)
-        let depthHeight = CVPixelBufferGetHeight(depthData)
-        CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
-        let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
-        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
-        
-        if (globalFlag == 1){
-            if(depthArray.isEmpty){
-                for y in 0...depthHeight-1{
-                    var distancesLine = [Float32]()
-                    for x in 0...depthWidth-1{
-                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
-                        distancesLine.append(distanceAtXYPoint)
-                    }
-                    depthArray.append(distancesLine)
-                }
-            }
-            else{
-                depthArray.removeAll()
-                for y in 0...depthHeight-1{
-                    var distancesLine = [Float32]()
-                    for x in 0...depthWidth-1{
-                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
-                        distancesLine.append(distanceAtXYPoint)
-                    }
-                    depthArray.append(distancesLine)
-                }
-                print("The array has finished")
-                //print(depthArray[96][128])
-            }
-            //message = String(depthArray[96][128]) + "m"
-            //SwiftUI] Publishing changes from background threads is not allowed; make sure to publish values from the main thread (via operators like receive(on:)) on model updates.
-            globalFlag = 0 //reset flag
-            done = 1
-        }
-        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
-                                                        orientation: .leftMirrored, //is this needed for the depth map as well?
-                                                        options: [:])
-        do {
-            try imageRequestHandler.perform([objectDetectionRequest])
-        } catch {
-            print("Failed to perform image request.")
         }
     }
     
