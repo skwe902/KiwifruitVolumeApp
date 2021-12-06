@@ -41,48 +41,12 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         return configuration
     }
     
-    //MARK: Lidar Reading
+    //MARK: RENDER RGB IMAGE
     func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval){
         //this will run once per every frame
         // Get the capture image and the depthmap (which is a cvPixelBuffer) from the current ARFrame
-        guard let capturedImage = arView?.session.currentFrame?.capturedImage, let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
-        let depthWidth = CVPixelBufferGetWidth(depthData)
-        let depthHeight = CVPixelBufferGetHeight(depthData)
-        CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
-        let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
-        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        guard let capturedImage = arView?.session.currentFrame?.capturedImage else { return }
         
-        if (globalFlag == 1){
-            if(depthArray.isEmpty){
-                for y in 0...depthHeight-1{
-                    var distancesLine = [Float32]()
-                    for x in 0...depthWidth-1{
-                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
-                        distancesLine.append(distanceAtXYPoint)
-                    }
-                    depthArray.append(distancesLine)
-                }
-                globalFlag = 0 //reset flag
-                done = 1
-            }
-            else{
-                depthArray.removeAll()
-                for y in 0...depthHeight-1{
-                    var distancesLine = [Float32]()
-                    for x in 0...depthWidth-1{
-                        let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
-                        distancesLine.append(distanceAtXYPoint)
-                    }
-                    depthArray.append(distancesLine)
-                }
-                print("The array has finished")
-                globalFlag = 0 //reset flag
-                done = 1
-                print(depthArray[96][128])
-            }
-            //message = String(depthArray[96][128]) + "m"
-            //SwiftUI] Publishing changes from background threads is not allowed; make sure to publish values from the main thread (via operators like receive(on:)) on model updates.
-        }
         let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: capturedImage,
                                                         orientation: .leftMirrored, //is this needed for the depth map as well?
                                                         options: [:])
@@ -93,6 +57,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
     }
     
+    //MARK: tap / pan screen
     @objc func tapOnARView(sender: UITapGestureRecognizer) {
         //this gets the coordinates of the bounding box when the user taps on screen
         //get the coordinates of the circles in CGPoint(x,y) - centerPoint, upPoint, downPoint, leftPoint, rightPoint
@@ -107,45 +72,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 continue
             }
         }
-        
-        globalFlag = 1 //set a flag to communicate with renderer func
-        if(done == 1){ //once renderer func says it has finished processing the data
-            print("detected screen tap")
-            print(depthArray[96][128])
-            for locations in locationArray{
-                if (locations != nil){
-                    var lidarArray: [CGPoint?] = []
-                    let lidarCoord = GeometryUtils.convertToLidarCoord(screenCoord: locations!)
-                    //MARK: ERROR HERE
-                    lidarArray.append(lidarCoord)
-                    //print(lidarCoord.x)
-                    //print(lidarCoord.y)
-                }
-                else{
-                    continue
-                }
-            }
-            done = 0
-        }
         nodesUpdated()
+        processLidarData()
     }
-//    camera did change normal
-//    detected screen tap
-//    0.82910156
-//    The array has finished
-//    0.8300781
-//    detected screen tap
-//    0.8300781
-//    The array has finished
-//    1.0332031
-//    detected screen tap
-//    1.0332031
-//    The array has finished
-//    0.6855469
-//    detected screen tap
-//    0.6855469
-//    The array has finished
-//    0.9716797
     
     @objc func panOnARView(sender: UIPanGestureRecognizer) {
         guard let arView = arView else { return }
@@ -163,6 +92,44 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
         default:
             ()
+        }
+    }
+    
+    //MARK: LIDAR DATA
+    func processLidarData(){
+        guard let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
+        let depthWidth = CVPixelBufferGetWidth(depthData)
+        let depthHeight = CVPixelBufferGetHeight(depthData)
+        CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
+        CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        
+        if(depthArray.isEmpty){
+            for y in 0...depthHeight-1{
+                var distancesLine = [Float32]()
+                for x in 0...depthWidth-1{
+                    let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                    distancesLine.append(distanceAtXYPoint)
+                }
+                depthArray.append(distancesLine)
+            }
+            print("The array has finished")
+            print(depthArray[96][128])
+            message = "Distance: " + String(depthArray[96][128]) + " m"
+        }
+        else{
+            depthArray.removeAll()
+            for y in 0...depthHeight-1{
+                var distancesLine = [Float32]()
+                for x in 0...depthWidth-1{
+                    let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
+                    distancesLine.append(distanceAtXYPoint)
+                }
+                depthArray.append(distancesLine)
+            }
+            print("The array has finished")
+            print(depthArray[96][128])
+            message = "Distance: " + String(depthArray[96][128]) + " m"
         }
     }
     
@@ -210,6 +177,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             let boundingBox = objectObservation.boundingBox
             //Set all the 5 points around the detected kiwifruit
             //translate to the coordinates on the screen
+            //currently these are hard coded values - relative to my ipad 12.9 inch pixel values (1024 x 1366)
             centerPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
             upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.minY*1366)
             downPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
@@ -276,9 +244,10 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             //let depth = GeometryUtils.calculateDepth(firstNode: circles[0], secondNode: circles[1], thirdNode: circles[2], fourthNode: circles[3], fifthNode: circles[4])
             //calculate volume of spheroid = 4/3 * pi * a * b * c
             volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
-            message = "Volume " + String(format: "%.2f cm3", volume)
-            message2 = "X length: " + String(format: "%.2f cm", xDistance)
-            message3 = "Y length: " + String(format: "%.2f cm", yDistance)
+            //MARK: uncomment here
+            //message = "Volume " + String(format: "%.2f cm3", volume)
+            //message2 = "X length: " + String(format: "%.2f cm", xDistance)
+            //message3 = "Y length: " + String(format: "%.2f cm", yDistance)
         }
     }
     
