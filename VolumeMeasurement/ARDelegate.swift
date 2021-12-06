@@ -107,6 +107,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 continue
             }
         }
+        
         globalFlag = 1 //set a flag to communicate with renderer func
         if(done == 1){ //once renderer func says it has finished processing the data
             print("detected screen tap")
