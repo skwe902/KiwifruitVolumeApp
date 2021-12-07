@@ -44,14 +44,13 @@ class GeometryUtils {
         circleGeometry.materials = [material]
         let circleNode = SCNNode(geometry: circleGeometry)
         circleNode.simdWorldTransform = result.worldTransform
-        
         return circleNode
     }
     
-    static func convertToLidarCoord(screenCoord: CGPoint) -> CGPoint{
+    static func convertToLidarCoord(screenCoord: CGPoint?) -> CGPoint?{
         //convert the ipad touch screen coordinates to the lidar screen coordinates
-        let xCoord = screenCoord.x
-        let yCoord = screenCoord.y
+        let xCoord = screenCoord!.x
+        let yCoord = screenCoord!.y
         let newCoord = CGPoint(x: xCoord*192/1024, y: yCoord*256/1366)
         return newCoord
     }

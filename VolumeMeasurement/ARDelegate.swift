@@ -115,7 +115,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             print("The array has finished")
             print(depthArray[96][128])
-            //message = "Distance: " + String(depthArray[96][128]) + " m"
+            getLidarKiwiArray()
         }
         else{
             depthArray.removeAll()
@@ -129,8 +129,39 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             print("The array has finished")
             print(depthArray[96][128])
-            //message = "Distance: " + String(depthArray[96][128]) + " m"
+            getLidarKiwiArray()
         }
+    }
+    
+    func getLidarKiwiArray(){
+        let lidarCenter = GeometryUtils.convertToLidarCoord(screenCoord: centerPoint)
+        let lidarRight = GeometryUtils.convertToLidarCoord(screenCoord: rightPoint)
+        let lidarLeft = GeometryUtils.convertToLidarCoord(screenCoord: leftPoint)
+        let lidarUp = GeometryUtils.convertToLidarCoord(screenCoord: upPoint)
+        let lidarDown = GeometryUtils.convertToLidarCoord(screenCoord: downPoint)
+        
+//        if lidarCenter != nil{
+//            print("This is the center: \(lidarCenter!)")
+//            print(depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)])
+//        }
+//        if lidarUp != nil{
+//            print("This is the up: \(lidarUp!)")
+//            print(depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)])
+//        }
+//        if lidarDown != nil{
+//            print("This is the down: \(lidarDown!)")
+//            print(depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)])
+//        }
+//        if lidarLeft != nil{
+//            print("This is the left: \(lidarLeft!)")
+//            print(depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)])
+//        }
+//        if lidarRight != nil{
+//            print("This is the right: \(lidarRight!)")
+//            print(depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)])
+//        }
+        
+        
     }
     
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
@@ -177,12 +208,13 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             let boundingBox = objectObservation.boundingBox
             //Set all the 5 points around the detected kiwifruit
             //translate to the coordinates on the screen
-            //currently these are hard coded values - relative to my ipad 12.9 inch pixel values (1024 x 1366)
-            centerPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.midY*1366)
-            upPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.minY*1366)
-            downPoint = CGPoint(x: 1024-boundingBox.midX*1024,y: 1366-boundingBox.maxY*1366)
-            leftPoint = CGPoint(x: 1024-boundingBox.maxX*1024,y: 1366-boundingBox.midY*1366)
-            rightPoint = CGPoint(x: 1024-boundingBox.minX*1024,y: 1366-boundingBox.midY*1366)
+            let screenWidth  = UIScreen.main.bounds.width
+            let screenHeight = UIScreen.main.bounds.height
+            centerPoint = CGPoint(x: screenWidth-boundingBox.midX*screenWidth,y: screenHeight-boundingBox.midY*screenHeight)
+            upPoint = CGPoint(x: screenWidth-boundingBox.midX*screenWidth,y: screenHeight-boundingBox.minY*screenHeight)
+            downPoint = CGPoint(x: screenWidth-boundingBox.midX*screenWidth,y: screenHeight-boundingBox.maxY*screenHeight)
+            leftPoint = CGPoint(x: screenWidth-boundingBox.maxX*screenWidth,y: screenHeight-boundingBox.midY*screenHeight)
+            rightPoint = CGPoint(x: screenWidth-boundingBox.minX*screenWidth,y: screenHeight-boundingBox.midY*screenHeight)
 //            print("up X: \(upPoint!.x)")
 //            print("up Y: \(upPoint!.y)")
 //            print("down X: \(downPoint!.x)")
