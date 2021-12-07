@@ -115,7 +115,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             print("The array has finished")
             print(depthArray[96][128])
-            message = "Distance: " + String(depthArray[96][128]) + " m"
+            //message = "Distance: " + String(depthArray[96][128]) + " m"
         }
         else{
             depthArray.removeAll()
@@ -129,7 +129,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             print("The array has finished")
             print(depthArray[96][128])
-            message = "Distance: " + String(depthArray[96][128]) + " m"
+            //message = "Distance: " + String(depthArray[96][128]) + " m"
         }
     }
     
@@ -245,9 +245,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             //calculate volume of spheroid = 4/3 * pi * a * b * c
             volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
             //MARK: uncomment here
-            //message = "Volume " + String(format: "%.2f cm3", volume)
-            //message2 = "X length: " + String(format: "%.2f cm", xDistance)
-            //message3 = "Y length: " + String(format: "%.2f cm", yDistance)
+            message = "Volume " + String(format: "%.2f cm3", volume)
+            message2 = "Width: " + String(format: "%.2f cm", xDistance)
+            message3 = "Height: " + String(format: "%.2f cm", yDistance)
         }
     }
     
