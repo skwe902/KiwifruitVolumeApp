@@ -244,7 +244,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             //let depth = GeometryUtils.calculateDepth(firstNode: circles[0], secondNode: circles[1], thirdNode: circles[2], fourthNode: circles[3], fifthNode: circles[4])
             //calculate volume of spheroid = 4/3 * pi * a * b * c
             volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
-            //MARK: uncomment here
             message = "Volume " + String(format: "%.2f cm3", volume)
             message2 = "Width: " + String(format: "%.2f cm", xDistance)
             message3 = "Height: " + String(format: "%.2f cm", yDistance)
