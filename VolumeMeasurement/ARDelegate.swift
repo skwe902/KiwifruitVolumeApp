@@ -114,7 +114,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 depthArray.append(distancesLine)
             }
             print("The array has finished")
-            print(depthArray[96][128])
+            print(depthArray)
             getLidarKiwiArray()
         }
         else{
@@ -136,29 +136,29 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let lidarCenter = GeometryUtils.convertToLidarCoord(screenCoord: centerPoint)
         let lidarRight = GeometryUtils.convertToLidarCoord(screenCoord: rightPoint)
         let lidarLeft = GeometryUtils.convertToLidarCoord(screenCoord: leftPoint)
-        let lidarUp = GeometryUtils.convertToLidarCoord(screenCoord: upPoint)
-        let lidarDown = GeometryUtils.convertToLidarCoord(screenCoord: downPoint)
+        let lidarUp = GeometryUtils.convertToLidarCoord(screenCoord: downPoint)
+        let lidarDown = GeometryUtils.convertToLidarCoord(screenCoord: upPoint)
         
-//        if lidarCenter != nil{
-//            print("This is the center: \(lidarCenter!)")
-//            print(depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)])
-//        }
-//        if lidarUp != nil{
-//            print("This is the up: \(lidarUp!)")
-//            print(depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)])
-//        }
-//        if lidarDown != nil{
-//            print("This is the down: \(lidarDown!)")
-//            print(depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)])
-//        }
-//        if lidarLeft != nil{
-//            print("This is the left: \(lidarLeft!)")
-//            print(depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)])
-//        }
-//        if lidarRight != nil{
-//            print("This is the right: \(lidarRight!)")
-//            print(depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)])
-//        }
+        if lidarCenter != nil{
+            print("This is the center: \(lidarCenter!)")
+            print(depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)])
+        }
+        if lidarUp != nil{
+            print("This is the up: \(lidarUp!)")
+            print(depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)])
+        }
+        if lidarDown != nil{
+            print("This is the down: \(lidarDown!)")
+            print(depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)])
+        }
+        if lidarLeft != nil{
+            print("This is the left: \(lidarLeft!)")
+            print(depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)])
+        }
+        if lidarRight != nil{
+            print("This is the right: \(lidarRight!)")
+            print(depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)])
+        }
         
         
     }
