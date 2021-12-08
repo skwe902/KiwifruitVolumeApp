@@ -105,9 +105,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
         
         if(depthArray.isEmpty){
-            for y in 0...depthHeight-1{
+            for x in 0...depthWidth-1{
                 var distancesLine = [Float32]()
-                for x in 0...depthWidth-1{
+                for y in (0...depthHeight-1).reversed(){
                     let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
                     distancesLine.append(distanceAtXYPoint)
                 }
@@ -118,10 +118,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             getLidarKiwiArray()
         }
         else{
-            depthArray.removeAll()
-            for y in 0...depthHeight-1{
+            for x in 0...depthWidth-1{
                 var distancesLine = [Float32]()
-                for x in 0...depthWidth-1{
+                for y in (0...depthHeight-1).reversed(){
                     let distanceAtXYPoint = floatBuffer[y * depthWidth + x]
                     distancesLine.append(distanceAtXYPoint)
                 }
