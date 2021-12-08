@@ -115,7 +115,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             print("The array has finished")
             print(depthArray)
-            getLidarKiwiArray()
+            lidarVolume()
         }
         else{
             for x in 0...depthWidth-1{
@@ -128,18 +128,20 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             }
             print("The array has finished")
             print(depthArray[96][128])
-            getLidarKiwiArray()
+            lidarVolume()
         }
     }
     
-    func getLidarKiwiArray(){
+    func lidarVolume(){
         let lidarCenter = GeometryUtils.convertToLidarCoord(screenCoord: centerPoint)
         let lidarRight = GeometryUtils.convertToLidarCoord(screenCoord: rightPoint)
         let lidarLeft = GeometryUtils.convertToLidarCoord(screenCoord: leftPoint)
         let lidarUp = GeometryUtils.convertToLidarCoord(screenCoord: downPoint)
         let lidarDown = GeometryUtils.convertToLidarCoord(screenCoord: upPoint)
         
-        if lidarCenter != nil{
+        if lidarCenter != nil{ //MARK: TODO:
+            let xrw = ((Int)(centerPoint.x) - VNImageOption.cameraIntrinsics[2][0]) * lidarCenter! / VNImageOption.cameraIntrinsics[0][0]
+            let yrw = ((Int)(centerPoint.y) - VNImageOption.cameraIntrinsics[2][1]) * lidarCenter! / VNImageOption.cameraIntrinsics[1][1];
             print("This is the center: \(lidarCenter!)")
             print(depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)])
         }
@@ -159,7 +161,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             print("This is the right: \(lidarRight!)")
             print(depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)])
         }
-        
         
     }
     
