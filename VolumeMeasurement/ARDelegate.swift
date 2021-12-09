@@ -114,7 +114,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 depthArray.append(distancesLine)
             }
             print("The array has finished")
-            print(depthArray)
             lidarVolume()
         }
         else{
@@ -127,42 +126,52 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 depthArray.append(distancesLine)
             }
             print("The array has finished")
-            print(depthArray[96][128])
             lidarVolume()
         }
     }
     
     func lidarVolume(){
+        //MARK: TODO:
         let lidarCenter = GeometryUtils.convertToLidarCoord(screenCoord: centerPoint)
         let lidarRight = GeometryUtils.convertToLidarCoord(screenCoord: rightPoint)
         let lidarLeft = GeometryUtils.convertToLidarCoord(screenCoord: leftPoint)
         let lidarUp = GeometryUtils.convertToLidarCoord(screenCoord: downPoint)
         let lidarDown = GeometryUtils.convertToLidarCoord(screenCoord: upPoint)
-        //let cameraIntrinsics: VNImageOption
-        let cameraIntrinsics = VNImageOption.cameraIntrinsics
-        if lidarCenter != nil{ //MARK: TODO:
-            let xrw = ((Int)(centerPoint.x) - cameraIntrinsics[2][0]) * lidarCenter! / cameraIntrinsics[0][0]
-            let yrw = ((Int)(centerPoint.y) - cameraIntrinsics[2][1]) * lidarCenter! / cameraIntrinsics[1][1];
-            print("This is the center: \(lidarCenter!)")
-            print(depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)])
-        }
-        if lidarUp != nil{
-            print("This is the up: \(lidarUp!)")
-            print(depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)])
-        }
-        if lidarDown != nil{
-            print("This is the down: \(lidarDown!)")
-            print(depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)])
-        }
-        if lidarLeft != nil{
-            print("This is the left: \(lidarLeft!)")
-            print(depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)])
-        }
-        if lidarRight != nil{
-            print("This is the right: \(lidarRight!)")
-            print(depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)])
-        }
         
+//        let cameraIntrinsics: VNImageOption = VNImageOption.cameraIntrinsics
+//        let xrw = ((Int)(centerPoint.x) - cameraIntrinsics[2][0]) * lidarCenter! / cameraIntrinsics[0][0]
+//        let yrw = ((Int)(centerPoint.y) - cameraIntrinsics[2][1]) * lidarCenter! / cameraIntrinsics[1][1]
+        
+//        if lidarCenter != nil{
+//            print("This is the center: \(lidarCenter!)")
+//            print(depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)])
+//        }
+//        if lidarUp != nil{
+//            print("This is the up: \(lidarUp!)")
+//            print(depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)])
+//        }
+//        if lidarDown != nil{
+//            print("This is the down: \(lidarDown!)")
+//            print(depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)])
+//        }
+//        if lidarLeft != nil{
+//            print("This is the left: \(lidarLeft!)")
+//            print(depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)])
+//        }
+//        if lidarRight != nil{
+//            print("This is the right: \(lidarRight!)")
+//            print(depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)])
+//        }
+        
+        //crop the lidar reading to just show the kiwifruit
+        if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
+            let extractedLidar = depthArray[Int(lidarUp!.y)...Int(lidarDown!.y)].map{$0[Int(lidarLeft!.x)...Int(lidarRight!.x)].compactMap{$0}}
+            let row = extractedLidar.count
+            let col = extractedLidar[0].count
+            print(row)
+            print(col)
+            //print(extractedLidar)
+        }
     }
     
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
