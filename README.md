@@ -2,7 +2,7 @@
 
 Written by **Andy Kweon** <br />
 
-This project was done during my summer internship as a machine learning intern.
+This project was done during my summer internship of 2021.
 
 ## Aim of the Project:
 
@@ -66,6 +66,21 @@ I have also noticed that ARKit and placing the orange circles require a flat sur
 ## Stage 3: Utilizing Lidar & depth measurements
 
 With ARKit having its own limitations, I have decided to move onto implementing Lidar. 
+<p align = "center">
+<img src = "https://user-images.githubusercontent.com/63220455/145328502-b0ca2ae6-5302-4444-b45c-ad3bcef34aeb.png"> <br />
+Fig 5. High Level Design of Lidar Implementation
+ </p>
+
+The idea of the lidar implementation is to utilize all three ideas from before.
+
+1. Using RGB image captured through our camera, run the ML model to detect kiwifruit and return its co-ordinates (so we know where the kiwi is on the screen)
+2. Using Lidar, get the depth map and get the pixel depth values to get real-world co-ordinates of the kiwifruit
+3. Using pythagoras (what we did for stage 1 measurement app) calculate the length and width of the kiwifruit (and depth as well) to calculate the volume
+
+To get the real-world co-ordinates, I have used the idea of pinhole camera model. https://en.wikipedia.org/wiki/Pinhole_camera_model
+
+Using this idea, I calculated the real-world co-ordinates of the kiwifruit and used pythagoras to calculate the distance between the real world points.
+
 
 ## File Description:
 
