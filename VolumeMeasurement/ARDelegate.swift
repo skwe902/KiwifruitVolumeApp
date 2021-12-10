@@ -154,8 +154,37 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             let zrw = depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)] //get depth
             let xrw = (Float(centerPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
             let yrw = (Float(centerPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let centerRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            print(centerRW)
         }
-        
+        if lidarLeft != nil{
+            let zrw = depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)] //get depth
+            let xrw = (Float(leftPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(leftPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let leftRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            print(leftRW)
+        }
+        if lidarRight != nil{
+            let zrw = depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)] //get depth
+            let xrw = (Float(rightPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(rightPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let rightRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            print(rightRW)
+        }
+        if lidarUp != nil{
+            let zrw = depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)] //get depth
+            let xrw = (Float(upPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(upPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let upRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            print(upRW)
+        }
+        if lidarDown != nil{
+            let zrw = depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)] //get depth
+            let xrw = (Float(downPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(downPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let downRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            print(downRW)
+        }
         
 //        let cameraIntrinsics: VNImageOption = VNImageOption.cameraIntrinsics
 //        let xrw = ((Int)(centerPoint.x) - cameraIntrinsics[2][0]) * lidarCenter! / cameraIntrinsics[0][0]
