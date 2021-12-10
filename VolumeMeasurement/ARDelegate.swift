@@ -97,12 +97,23 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     
     //MARK: LIDAR DATA
     func processLidarData(){
-        guard let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap else { return }
+        guard let depthData = arView?.session.currentFrame?.sceneDepth?.depthMap, var cameraIntrinsics = arView?.session.currentFrame?.camera.intrinsics else { return }
         let depthWidth = CVPixelBufferGetWidth(depthData)
         let depthHeight = CVPixelBufferGetHeight(depthData)
         CVPixelBufferLockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
         let floatBuffer = unsafeBitCast(CVPixelBufferGetBaseAddress(depthData), to: UnsafeMutablePointer<Float32>.self)
         CVPixelBufferUnlockBaseAddress(depthData, CVPixelBufferLockFlags(rawValue: 0))
+        
+        // Camera-intrinsics units are in full camera-resolution pixels.
+        //simd_float3x3(
+//            [[1627.7137, 0.0, 0.0], [0.0, 1627.7137, 0.0], [931.7529, 729.14325, 1.0]])
+        let depthResolution = simd_float2(x: Float(depthWidth), y: Float(depthHeight))
+        let scaleRes = simd_float2(x: Float( (arView?.session.currentFrame?.camera.imageResolution.width)!) / depthResolution.x, y: Float((arView?.session.currentFrame?.camera.imageResolution.height)!) / depthResolution.y)
+        //scaleRes = ~7.5
+        cameraIntrinsics[0][0] /= scaleRes.x
+        cameraIntrinsics[1][1] /= scaleRes.y
+        cameraIntrinsics[2][0] /= scaleRes.x
+        cameraIntrinsics[2][1] /= scaleRes.y
         
         if(depthArray.isEmpty){
             for x in 0...depthWidth-1{
@@ -114,9 +125,10 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 depthArray.append(distancesLine)
             }
             print("The array has finished")
-            lidarVolume()
+            lidarVolume(cameraIntrinsics: cameraIntrinsics)
         }
         else{
+            depthArray.removeAll()
             for x in 0...depthWidth-1{
                 var distancesLine = [Float32]()
                 for y in (0...depthHeight-1).reversed(){
@@ -126,17 +138,24 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 depthArray.append(distancesLine)
             }
             print("The array has finished")
-            lidarVolume()
+            lidarVolume(cameraIntrinsics: cameraIntrinsics)
         }
     }
     
-    func lidarVolume(){
+    func lidarVolume(cameraIntrinsics: simd_float3x3){
         //MARK: TODO:
         let lidarCenter = GeometryUtils.convertToLidarCoord(screenCoord: centerPoint)
         let lidarRight = GeometryUtils.convertToLidarCoord(screenCoord: rightPoint)
         let lidarLeft = GeometryUtils.convertToLidarCoord(screenCoord: leftPoint)
         let lidarUp = GeometryUtils.convertToLidarCoord(screenCoord: downPoint)
         let lidarDown = GeometryUtils.convertToLidarCoord(screenCoord: upPoint)
+        
+        if lidarCenter != nil{
+            let zrw = depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)] //get depth
+            let xrw = (Float(centerPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(centerPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+        }
+        
         
 //        let cameraIntrinsics: VNImageOption = VNImageOption.cameraIntrinsics
 //        let xrw = ((Int)(centerPoint.x) - cameraIntrinsics[2][0]) * lidarCenter! / cameraIntrinsics[0][0]
@@ -168,8 +187,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             let extractedLidar = depthArray[Int(lidarUp!.y)...Int(lidarDown!.y)].map{$0[Int(lidarLeft!.x)...Int(lidarRight!.x)].compactMap{$0}}
             let row = extractedLidar.count
             let col = extractedLidar[0].count
-            print(row)
-            print(col)
             //print(extractedLidar)
         }
     }
