@@ -109,11 +109,14 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
 //            [[1627.7137, 0.0, 0.0], [0.0, 1627.7137, 0.0], [931.7529, 729.14325, 1.0]])
         let depthResolution = simd_float2(x: Float(depthWidth), y: Float(depthHeight))
         let scaleRes = simd_float2(x: Float( (arView?.session.currentFrame?.camera.imageResolution.width)!) / depthResolution.x, y: Float((arView?.session.currentFrame?.camera.imageResolution.height)!) / depthResolution.y)
-        //scaleRes = ~7.5
+        //scaleRes = ~7.5 -> to compensate for RGB resolution to lidar resolution
+        print(scaleRes)
         cameraIntrinsics[0][0] /= scaleRes.x
         cameraIntrinsics[1][1] /= scaleRes.y
         cameraIntrinsics[2][0] /= scaleRes.x
         cameraIntrinsics[2][1] /= scaleRes.y
+        print(cameraIntrinsics)
+        //simd_float3x3([[216.78749, 0.0, 0.0], [0.0, 216.78749, 0.0], [126.18921, 96.61844, 1.0]])
         
         if(depthArray.isEmpty){
             for x in 0...depthWidth-1{
@@ -149,67 +152,56 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let lidarLeft = GeometryUtils.convertToLidarCoord(screenCoord: leftPoint)
         let lidarUp = GeometryUtils.convertToLidarCoord(screenCoord: downPoint)
         let lidarDown = GeometryUtils.convertToLidarCoord(screenCoord: upPoint)
-        
-        if lidarCenter != nil{
+        var centerRW = SCNVector3()
+        var leftRW = SCNVector3()
+        var rightRW = SCNVector3()
+        var upRW = SCNVector3()
+        var downRW = SCNVector3()
+        //get Real World co-ordinates
+        if lidarCenter != nil {
             let zrw = depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)] //get depth
-            let xrw = (Float(centerPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(centerPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
-            let centerRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            print(centerRW)
+            let xrw = (Float(lidarCenter!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarCenter!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            centerRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            //print(centerRW)
         }
         if lidarLeft != nil{
             let zrw = depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)] //get depth
-            let xrw = (Float(leftPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(leftPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
-            let leftRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            print(leftRW)
+            let xrw = (Float(lidarLeft!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarLeft!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            leftRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            //print(leftRW)
         }
         if lidarRight != nil{
             let zrw = depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)] //get depth
-            let xrw = (Float(rightPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(rightPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
-            let rightRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            print(rightRW)
+            let xrw = (Float(lidarRight!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarRight!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            rightRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            //print(rightRW)
         }
         if lidarUp != nil{
             let zrw = depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)] //get depth
-            let xrw = (Float(upPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(upPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
-            let upRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            print(upRW)
+            let xrw = (Float(lidarUp!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarUp!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            upRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            //print(upRW)
         }
         if lidarDown != nil{
             let zrw = depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)] //get depth
-            let xrw = (Float(downPoint!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(downPoint!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
-            let downRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            print(downRW)
+            let xrw = (Float(lidarDown!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarDown!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            downRW = SCNVector3(x: xrw, y: yrw, z: zrw)
+            //print(downRW)
         }
         
-//        let cameraIntrinsics: VNImageOption = VNImageOption.cameraIntrinsics
-//        let xrw = ((Int)(centerPoint.x) - cameraIntrinsics[2][0]) * lidarCenter! / cameraIntrinsics[0][0]
-//        let yrw = ((Int)(centerPoint.y) - cameraIntrinsics[2][1]) * lidarCenter! / cameraIntrinsics[1][1]
+        let width = GeometryUtils.calculateDistance(first: leftRW, second: rightRW)
+        print(width)
+        let height = GeometryUtils.calculateDistance(first: upRW, second: downRW)
+        print(height)
         
-//        if lidarCenter != nil{
-//            print("This is the center: \(lidarCenter!)")
-//            print(depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)])
-//        }
-//        if lidarUp != nil{
-//            print("This is the up: \(lidarUp!)")
-//            print(depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)])
-//        }
-//        if lidarDown != nil{
-//            print("This is the down: \(lidarDown!)")
-//            print(depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)])
-//        }
-//        if lidarLeft != nil{
-//            print("This is the left: \(lidarLeft!)")
-//            print(depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)])
-//        }
-//        if lidarRight != nil{
-//            print("This is the right: \(lidarRight!)")
-//            print(depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)])
-//        }
+        //message = "Volume " + String(format: "%.2f cm3", volume)
+        message2 = "Width: " + String(format: "%.2f cm", width)
+        message3 = "Height: " + String(format: "%.2f cm", height)
         
         //crop the lidar reading to just show the kiwifruit
         if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
@@ -310,7 +302,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         }
         arView?.scene.rootNode.addChildNode(circleNode)
         circles.append(circleNode)
-        //nodesUpdated()
     }
     
     private func moveNode(_ node:SCNNode, raycastResult:ARRaycastResult) {
@@ -332,9 +323,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             //let depth = GeometryUtils.calculateDepth(firstNode: circles[0], secondNode: circles[1], thirdNode: circles[2], fourthNode: circles[3], fifthNode: circles[4])
             //calculate volume of spheroid = 4/3 * pi * a * b * c
             volume = 4/3 * Float.pi * xDistance/2 * yDistance/2 * xDistance/3.236 //depth -> golden ratio
-            message = "Volume " + String(format: "%.2f cm3", volume)
-            message2 = "Width: " + String(format: "%.2f cm", xDistance)
-            message3 = "Height: " + String(format: "%.2f cm", yDistance)
+//            message = "Volume " + String(format: "%.2f cm3", volume)
+//            message2 = "Width: " + String(format: "%.2f cm", xDistance)
+//            message3 = "Height: " + String(format: "%.2f cm", yDistance)
         }
     }
     
@@ -343,7 +334,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
               let query = arView.raycastQuery(from: location,
                                         allowing: .existingPlaneGeometry,
                                         alignment: .any) else { return nil }
-                //let query = arView.raycastQuery(from: location, allowing: .existingPlaneInfinite, alignment: .any) else {return nil}
         let results = arView.session.raycast(query)
         return results.first
     }
