@@ -157,6 +157,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         var rightRW = SCNVector3()
         var upRW = SCNVector3()
         var downRW = SCNVector3()
+        
         //get Real World co-ordinates
         if lidarCenter != nil {
             let zrw = depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)] //get depth
@@ -193,7 +194,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             downRW = SCNVector3(x: xrw, y: yrw, z: zrw)
             //print(downRW)
         }
-        
+        //calculate the width and the height of the kiwifruit
         let width = GeometryUtils.calculateDistance(first: leftRW, second: rightRW)
         print(width)
         let height = GeometryUtils.calculateDistance(first: upRW, second: downRW)
