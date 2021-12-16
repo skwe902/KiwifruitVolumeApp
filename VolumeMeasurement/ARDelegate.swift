@@ -198,9 +198,9 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let height = GeometryUtils.calculateDistance(first: upRW, second: downRW)
         print("Calculated Kiwi Height: \(height)")
         
-        //message = "Volume " + String(format: "%.2f cm3", volume)
-        message2 = "Width: " + String(format: "%.2f cm", width)
-        message3 = "Height: " + String(format: "%.2f cm", height)
+        message = "Width: " + String(format: "%.2f cm", width) + " / Height: " + String(format: "%.2f cm", height)
+        message2 = "Left: " + "(" + String(leftRW.x) + "," + String(leftRW.y) + "," + String(leftRW.z) + ")" + "/ Right: " + "(" + String(rightRW.x) + "," + String(rightRW.y) + "," + String(rightRW.z) + ")"
+        message3 = "Up: " + "(" + String(upRW.x) + "," + String(upRW.y) + "," + String(upRW.z) + ")" + "/ Down: " + "(" + String(downRW.x) + "," + String(downRW.y) + "," + String(downRW.z) + ")"
         
         //crop the lidar reading to just show the kiwifruit
         if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
