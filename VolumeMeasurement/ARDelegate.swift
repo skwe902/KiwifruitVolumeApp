@@ -110,12 +110,10 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         let depthResolution = simd_float2(x: Float(depthWidth), y: Float(depthHeight))
         let scaleRes = simd_float2(x: Float( (arView?.session.currentFrame?.camera.imageResolution.width)!) / depthResolution.x, y: Float((arView?.session.currentFrame?.camera.imageResolution.height)!) / depthResolution.y)
         //scaleRes = ~7.5 -> to compensate for RGB resolution to lidar resolution
-        print(scaleRes)
         cameraIntrinsics[0][0] /= scaleRes.x
         cameraIntrinsics[1][1] /= scaleRes.y
         cameraIntrinsics[2][0] /= scaleRes.x
         cameraIntrinsics[2][1] /= scaleRes.y
-        print(cameraIntrinsics)
         //simd_float3x3([[216.78749, 0.0, 0.0], [0.0, 216.78749, 0.0], [126.18921, 96.61844, 1.0]])
         
         if(depthArray.isEmpty){
@@ -171,34 +169,34 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             let xrw = (Float(lidarLeft!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
             let yrw = (Float(lidarLeft!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
             leftRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            //print(leftRW)
+            print("This is the left point: \(leftRW)")
         }
         if lidarRight != nil{
             let zrw = depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)] //get depth
             let xrw = (Float(lidarRight!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
             let yrw = (Float(lidarRight!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
             rightRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            //print(rightRW)
+            print("This is the right point: \(rightRW)")
         }
         if lidarUp != nil{
             let zrw = depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)] //get depth
             let xrw = (Float(lidarUp!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
             let yrw = (Float(lidarUp!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
             upRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            //print(upRW)
+            print("This is the up point: \(upRW)")
         }
         if lidarDown != nil{
             let zrw = depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)] //get depth
             let xrw = (Float(lidarDown!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
             let yrw = (Float(lidarDown!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
             downRW = SCNVector3(x: xrw, y: yrw, z: zrw)
-            //print(downRW)
+            print("This is the down point: \(downRW)")
         }
         //calculate the width and the height of the kiwifruit
         let width = GeometryUtils.calculateDistance(first: leftRW, second: rightRW)
-        print(width)
+        print("Calculated Kiwi Width: \(width)")
         let height = GeometryUtils.calculateDistance(first: upRW, second: downRW)
-        print(height)
+        print("Calculated Kiwi Height: \(height)")
         
         //message = "Volume " + String(format: "%.2f cm3", volume)
         message2 = "Width: " + String(format: "%.2f cm", width)
