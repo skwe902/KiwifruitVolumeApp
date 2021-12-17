@@ -126,6 +126,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
                 depthArray.append(distancesLine)
             }
             print("The array has finished")
+            //print(depthArray)
             lidarVolume(cameraIntrinsics: cameraIntrinsics)
         }
         else{
@@ -201,15 +202,15 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         print("Calculated Kiwi Height: \(height)")
         
         message = "Width: " + String(format: "%.2f cm", width) + " / Height: " + String(format: "%.2f cm", height)
-        message2 = "Left: " + "(" + String(leftRW.x) + "," + String(leftRW.y) + "," + String(leftRW.z) + ")" + "/ Right: " + "(" + String(rightRW.x) + "," + String(rightRW.y) + "," + String(rightRW.z) + ")"
-        message3 = "Up: " + "(" + String(upRW.x) + "," + String(upRW.y) + "," + String(upRW.z) + ")" + "/ Down: " + "(" + String(downRW.x) + "," + String(downRW.y) + "," + String(downRW.z) + ")"
+        message2 = "Left: " + "(" + String(format: "%.2f", leftRW.x) + "," + String(format: "%.2f", leftRW.y) + "," + String(format: "%.2f", leftRW.z) + ")" + "/ Right: " + "(" + String(format: "%.2f", rightRW.x) + "," + String(format: "%.2f", rightRW.y) + "," + String(format: "%.2f", rightRW.z) + ")"
+        message3 = "Up: " + "(" + String(format: "%.2f", upRW.x) + "," + String(format: "%.2f", upRW.y) + "," + String(format: "%.2f", upRW.z) + ")" + "/ Down: " + "(" + String(format: "%.2f", downRW.x) + "," + String(format: "%.2f", downRW.y) + "," + String(format: "%.2f", downRW.z) + ")"
         
         //crop the lidar reading to just show the kiwifruit
         if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
             let extractedLidar = depthArray[Int(lidarUp!.y)...Int(lidarDown!.y)].map{$0[Int(lidarLeft!.x)...Int(lidarRight!.x)].compactMap{$0}}
             let row = extractedLidar.count
             let col = extractedLidar[0].count
-            //print(extractedLidar)
+            print(extractedLidar)
         }
     }
     
