@@ -24,7 +24,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         arView.session.run(configuration)
         arView.delegate = self
         arView.scene = SCNScene()
-        
+        // set up different user gestures
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(tapOnARView))
         arView.addGestureRecognizer(tapGesture)
         let panGesture = UIPanGestureRecognizer(target: self, action: #selector(panOnARView))
@@ -115,7 +115,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         cameraIntrinsics[2][0] /= scaleRes.x
         cameraIntrinsics[2][1] /= scaleRes.y
         //simd_float3x3([[216.78749, 0.0, 0.0], [0.0, 216.78749, 0.0], [126.18921, 96.61844, 1.0]])
-        
+        //Add the lidar data to the depthArray
         if(depthArray.isEmpty){
             for x in 0...depthWidth-1{
                 var distancesLine = [Float32]()
@@ -129,7 +129,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             //print(depthArray)
             lidarVolume(cameraIntrinsics: cameraIntrinsics)
         }
-        else{
+        else{ // if depthArray is not empty
             depthArray.removeAll()
             for x in 0...depthWidth-1{
                 var distancesLine = [Float32]()
@@ -264,14 +264,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
             downPoint = CGPoint(x: screenWidth-boundingBox.midX*screenWidth,y: screenHeight-boundingBox.maxY*screenHeight)
             leftPoint = CGPoint(x: screenWidth-boundingBox.maxX*screenWidth,y: screenHeight-boundingBox.midY*screenHeight)
             rightPoint = CGPoint(x: screenWidth-boundingBox.minX*screenWidth,y: screenHeight-boundingBox.midY*screenHeight)
-//            print("up X: \(upPoint!.x)")
-//            print("up Y: \(upPoint!.y)")
-//            print("down X: \(downPoint!.x)")
-//            print("down Y: \(downPoint!.y)")
-//            print("left X: \(leftPoint!.x)")
-//            print("left Y: \(leftPoint!.y)")
-//            print("right X: \(rightPoint!.x)")
-//            print("right Y: \(rightPoint!.y)")
         }
     }
     
