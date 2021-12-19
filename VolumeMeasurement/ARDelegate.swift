@@ -145,7 +145,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     }
     
     func lidarVolume(cameraIntrinsics: simd_float3x3){
-        //MARK: TODO:
         let lidarCenter = GeometryUtils.convertToLidarCoord(screenCoord: centerPoint)
         let lidarRight = GeometryUtils.convertToLidarCoord(screenCoord: rightPoint)
         let lidarLeft = GeometryUtils.convertToLidarCoord(screenCoord: leftPoint)
@@ -212,7 +211,6 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         //message = "Width: " + String(format: "%.2f cm", width) + " / Height: " + String(format: "%.2f cm", height) + " / Depth: " + String(format: "%.2f cm", depth)
         message2 = "Left: " + "(" + String(format: "%.2f", leftRW.x) + "," + String(format: "%.2f", leftRW.y) + "," + String(format: "%.2f", leftRW.z) + ")" + "/ Right: " + "(" + String(format: "%.2f", rightRW.x) + "," + String(format: "%.2f", rightRW.y) + "," + String(format: "%.2f", rightRW.z) + ")"
         message3 = "Up: " + "(" + String(format: "%.2f", upRW.x) + "," + String(format: "%.2f", upRW.y) + "," + String(format: "%.2f", upRW.z) + ")" + "/ Down: " + "(" + String(format: "%.2f", downRW.x) + "," + String(format: "%.2f", downRW.y) + "," + String(format: "%.2f", downRW.z) + ")"
-                
     }
     
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
