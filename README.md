@@ -59,7 +59,7 @@ After testing, the model was implemented to the Stage 1 of the app, and you can 
 
 https://user-images.githubusercontent.com/63220455/144692937-00fad64b-54ee-4ac5-b2b1-413e989d1d19.mp4
 
-Now it just requires one tap on the screen from the user - the app will detect the kiwifruit and calculate the volume. You can see that depending on the angle of the camera the volume measurements fluctuate - this is due to the volume formula not accounting for the angle of the camera. It is only using the length and the width of the kiwifruit measured through the visible frame.
+Now it just requires one tap on the screen from the user - the app will detect the kiwifruit and calculate the volume based on the measured width and length of kiwifruit. You can see that depending on the angle of the camera the volume measurements fluctuate - this is due to the volume formula not accounting for the angle of the camera. It is only using the length and the width of the kiwifruit measured through the visible frame.
 
 I have also noticed that ARKit and placing the orange circles require a flat surface - I have wished to overcome this but my lack of knowledge in the ARKit framework and iOS development was a hindrance. 
 
