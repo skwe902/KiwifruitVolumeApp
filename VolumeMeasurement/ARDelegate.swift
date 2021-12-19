@@ -206,12 +206,12 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         message3 = "Up: " + "(" + String(format: "%.2f", upRW.x) + "," + String(format: "%.2f", upRW.y) + "," + String(format: "%.2f", upRW.z) + ")" + "/ Down: " + "(" + String(format: "%.2f", downRW.x) + "," + String(format: "%.2f", downRW.y) + "," + String(format: "%.2f", downRW.z) + ")"
         
         //crop the lidar reading to just show the kiwifruit
-        if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
-            let extractedLidar = depthArray[Int(lidarUp!.y)...Int(lidarDown!.y)].map{$0[Int(lidarLeft!.x)...Int(lidarRight!.x)].compactMap{$0}}
-            let row = extractedLidar.count
-            let col = extractedLidar[0].count
-            print(extractedLidar)
-        }
+//        if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
+//            let extractedLidar = depthArray[Int(lidarUp!.y)...Int(lidarDown!.y)].map{$0[Int(lidarLeft!.x)...Int(lidarRight!.x)].compactMap{$0}}
+//            let row = extractedLidar.count
+//            let col = extractedLidar[0].count
+//            print(extractedLidar)
+//        }
     }
     
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
