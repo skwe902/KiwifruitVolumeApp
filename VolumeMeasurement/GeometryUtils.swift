@@ -1,7 +1,7 @@
 //
 //  GeometryUtils.swift
 //  SwiftUIARKit
-// this script returns the distance in a 3D space
+// this script returns the distance in a 3D space / has all the helper functions for all calculations
 
 import Foundation
 import ARKit
@@ -13,7 +13,6 @@ class GeometryUtils {
                 pow(second.y - first.y, 2) +
                 pow(second.z - first.z, 2)
         )
-        
         distance *= 100 // convert to cm
         return abs(distance) //return positive value
     }

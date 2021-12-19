@@ -2,8 +2,6 @@
 //  StartView.swift
 //  SwiftUIARKit
 //
-//  Created by Dani D on 23/11/21.
-//
 
 import SwiftUI
 
