@@ -284,8 +284,8 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     private var zDistance: Float = 0
     private var volume: Float = 0
     
+    //MARK: Orange circles
     private func addCircle(raycastResult: ARRaycastResult) {
-        //MARK: -> issue here
         let circleNode = GeometryUtils.createCircle(fromRaycastResult: raycastResult)
         if circles.count >= 5 {
             for circle in circles {
@@ -309,6 +309,7 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
     }
     
     private func nodesUpdated(){
+        //not used since we now use lidar to measure volume
         //circles = center, up, down, left right
         if circles.indices.contains(0) && circles.indices.contains(1) && circles.indices.contains(2) && circles.indices.contains(3) && circles.indices.contains(4){
             let yDistance = GeometryUtils.calculateDistance(firstNode: circles[1], secondNode: circles[2])
