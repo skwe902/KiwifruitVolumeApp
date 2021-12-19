@@ -161,57 +161,58 @@ class ARDelegate: NSObject, ARSCNViewDelegate, ObservableObject {
         //get Real World co-ordinates
         if lidarCenter != nil {
             let zrw = depthArray[Int(lidarCenter!.x)][Int(lidarCenter!.y)] //get depth
-            let xrw = (Float(lidarCenter!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(lidarCenter!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let xrw = (Float(lidarCenter!.x) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarCenter!.y) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[1][1]
             centerRW = SCNVector3(x: xrw, y: yrw, z: zrw)
             print(centerRW)
         }
         if lidarLeft != nil{
             let zrw = depthArray[Int(lidarLeft!.x)][Int(lidarLeft!.y)] //get depth
-            let xrw = (Float(lidarLeft!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(lidarLeft!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let xrw = (Float(lidarLeft!.x) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarLeft!.y) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[1][1]
             leftRW = SCNVector3(x: xrw, y: yrw, z: zrw)
             print("This is the left point: \(leftRW)")
         }
         if lidarRight != nil{
             let zrw = depthArray[Int(lidarRight!.x)][Int(lidarRight!.y)] //get depth
-            let xrw = (Float(lidarRight!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(lidarRight!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let xrw = (Float(lidarRight!.x) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarRight!.y) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[1][1]
             rightRW = SCNVector3(x: xrw, y: yrw, z: zrw)
             print("This is the right point: \(rightRW)")
         }
         if lidarUp != nil{
             let zrw = depthArray[Int(lidarUp!.x)][Int(lidarUp!.y)] //get depth
-            let xrw = (Float(lidarUp!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(lidarUp!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let xrw = (Float(lidarUp!.x) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarUp!.y) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[1][1]
             upRW = SCNVector3(x: xrw, y: yrw, z: zrw)
             print("This is the up point: \(upRW)")
         }
         if lidarDown != nil{
             let zrw = depthArray[Int(lidarDown!.x)][Int(lidarDown!.y)] //get depth
-            let xrw = (Float(lidarDown!.x) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[0][0]
-            let yrw = (Float(lidarDown!.y) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[1][1]
+            let xrw = (Float(lidarDown!.x) - cameraIntrinsics[2][1]) * zrw / cameraIntrinsics[0][0]
+            let yrw = (Float(lidarDown!.y) - cameraIntrinsics[2][0]) * zrw / cameraIntrinsics[1][1]
             downRW = SCNVector3(x: xrw, y: yrw, z: zrw)
             print("This is the down point: \(downRW)")
         }
         
-        //calculate the width and the height of the kiwifruit
-        let width = GeometryUtils.calculateDistance(first: leftRW, second: rightRW)
-        print("Calculated Kiwi Width: \(width)")
-        let height = GeometryUtils.calculateDistance(first: upRW, second: downRW)
-        print("Calculated Kiwi Height: \(height)")
+        //crop the lidar reading to just show the kiwifruit
+        if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
+            let extractedLidar = depthArray[Int(lidarUp!.y)...Int(lidarDown!.y)].map{$0[Int(lidarLeft!.x)...Int(lidarRight!.x)].compactMap{$0}}
+            let lowestValue = extractedLidar.joined().min()
+            let highestValue = extractedLidar.joined().max()
+            let depth = (highestValue! - lowestValue!) * 100 //convert to cm
+            let width = GeometryUtils.calculateDistance(first: leftRW, second: rightRW)
+            let height = GeometryUtils.calculateDistance(first: upRW, second: downRW)
+            print("Calculated Kiwi Width: \(width)")
+            print("Calculated Kiwi Height: \(height)")
+            print(depth)
+            message = "Width: " + String(format: "%.2f cm", width) + " / Height: " + String(format: "%.2f cm", height) + " / Depth: " + String(format: "%.2f cm", depth)
+        }
         
-        message = "Width: " + String(format: "%.2f cm", width) + " / Height: " + String(format: "%.2f cm", height)
+        //message = "Width: " + String(format: "%.2f cm", width) + " / Height: " + String(format: "%.2f cm", height) + " / Depth: " + String(format: "%.2f cm", depth)
         message2 = "Left: " + "(" + String(format: "%.2f", leftRW.x) + "," + String(format: "%.2f", leftRW.y) + "," + String(format: "%.2f", leftRW.z) + ")" + "/ Right: " + "(" + String(format: "%.2f", rightRW.x) + "," + String(format: "%.2f", rightRW.y) + "," + String(format: "%.2f", rightRW.z) + ")"
         message3 = "Up: " + "(" + String(format: "%.2f", upRW.x) + "," + String(format: "%.2f", upRW.y) + "," + String(format: "%.2f", upRW.z) + ")" + "/ Down: " + "(" + String(format: "%.2f", downRW.x) + "," + String(format: "%.2f", downRW.y) + "," + String(format: "%.2f", downRW.z) + ")"
-        
-        //crop the lidar reading to just show the kiwifruit
-//        if lidarCenter != nil && lidarUp != nil && lidarDown != nil && lidarLeft != nil && lidarRight != nil{
-//            let extractedLidar = depthArray[Int(lidarUp!.y)...Int(lidarDown!.y)].map{$0[Int(lidarLeft!.x)...Int(lidarRight!.x)].compactMap{$0}}
-//            let row = extractedLidar.count
-//            let col = extractedLidar[0].count
-//            print(extractedLidar)
-//        }
+                
     }
     
     func session(_ session: ARSession, cameraDidChangeTrackingState camera: ARCamera) {
