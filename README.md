@@ -67,7 +67,7 @@ I have also noticed that ARKit and placing the orange circles require a flat sur
 
 With ARKit having its own limitations, I have decided to move onto implementing Lidar. 
 <p align = "center">
-<img src = "https://user-images.githubusercontent.com/63220455/145328502-b0ca2ae6-5302-4444-b45c-ad3bcef34aeb.png"> <br />
+<img src = "https://user-images.githubusercontent.com/63220455/146698877-6b06a407-98de-44fe-bf7f-60360d6974e3.PNG"> <br />
 Fig 5. High Level Design of Lidar Implementation
  </p>
 
@@ -77,10 +77,18 @@ The idea of the lidar implementation is to utilize all three ideas from before.
 2. Using Lidar, get the depth map and get the pixel depth values to get real-world co-ordinates of the kiwifruit
 3. Using pythagoras (what we did for stage 1 measurement app) calculate the length and width of the kiwifruit (and depth as well) to calculate the volume
 
+Here is a sample reading from the Lidar sensor (192 x 256) plotted using a python script
+
+<p align = "center">
+<img src = "https://user-images.githubusercontent.com/63220455/146699016-5f6e4d85-f4fb-49cf-a18e-012455be7ba1.PNG"> <br />
+Fig 6. RGB image (left) and Visuallised Lidar Measurement (right)
+</p>
+
+By running the ML model, we know where the kiwifruit is on the screen. This location is then translated and mapped onto the lidar reading, so we can segment just the lidar data of the kiwifruit.
+
 To get the real-world co-ordinates, I have used the idea of pinhole camera model. https://en.wikipedia.org/wiki/Pinhole_camera_model
 
 Using this idea, I calculated the real-world co-ordinates of the kiwifruit and used pythagoras to calculate the distance between the real world points.
-
 
 ## File Description:
 
