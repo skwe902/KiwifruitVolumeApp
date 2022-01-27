@@ -89,7 +89,3 @@ By running the ML model, we know where the kiwifruit is on the screen. This loca
 To get the real-world co-ordinates, I have used the idea of pinhole camera model. https://en.wikipedia.org/wiki/Pinhole_camera_model
 
 Using this idea, I calculated the real-world co-ordinates of the kiwifruit and used pythagoras to calculate the distance between the real world points.
-
-## File Description:
-
-## Future Works:
