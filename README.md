@@ -2,8 +2,6 @@
 
 Written by **Andy Kweon** <br />
 
-This project was done during my summer internship of 2021.
-
 ## Aim of the Project:
 
 The aim of the project was to create an ios app that could measure the volume of a kiwifruit just by the user turning on the app and pointing their phone at the fruit. 
